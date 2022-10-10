@@ -1,5 +1,5 @@
 {
-  "name": "application",
+  "name": "nextup",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -18,15 +18,23 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "pretest:e2e": "env-cmd -f ../test.env npm run test:typeorm schema:sync && npm run db:seed",
+    "test:e2e": "env-cmd -f ../test.env jest --config ./test/jest-e2e.json",
+    "posttest:e2e": "env-cmd -f ../test.env npm run test:typeorm schema:drop",
+    "db:seed": "env-cmd -f ../test.env ts-node ./src/db/seeddb-index.ts",
+    "typeorm": "env-cmd -f ../development.env typeorm-ts-node-esm -d src/data-source.ts",
+    "test:typeorm": "env-cmd -f ../test.env typeorm-ts-node-esm -d src/data-source.ts"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
+    "mongodb": "^3.0.8",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "typeorm": "0.3.9",
+    "typeorm-extension": "^2.1.12"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
@@ -38,6 +46,7 @@
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "env-cmd": "^10.1.0",
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",

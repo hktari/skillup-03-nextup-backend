@@ -9,9 +9,10 @@ import { UserModule } from './user/user.module';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 
+import { TypeOrmModule } from '@nestjs/typeorm'
 @Module({
   imports: [LoggerModule, ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }), EventModule, UserModule, BookingModule, DatabaseModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

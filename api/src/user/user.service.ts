@@ -3,13 +3,18 @@ import { UserRepository } from '../common/constants';
 import { Repository } from 'typeorm'
 import { User } from './entities/user.entity';
 import { CryptoService } from '../auth/crypto.service';
+import { DataSource } from 'typeorm'
+import { InjectDataSource } from '@nestjs/typeorm'
 
 @Injectable()
 export class UserService {
-    constructor(
-        @Inject(UserRepository) private readonly userRepository: Repository<User>,
-        private readonly cryptoService: CryptoService) {
+    private readonly userRepository: Repository<User>;
 
+    constructor(
+        @InjectDataSource()
+        dataSource: DataSource,
+        private readonly cryptoService: CryptoService) {
+        this.userRepository = dataSource.getRepository<User>(User)
     }
 
     async create(firstName: string, lastName: string, email: string, password: string, imageUrl: string) {
@@ -25,6 +30,7 @@ export class UserService {
         return await this.userRepository.save(user)
     }
 
-    
-
+    async findByEmail(email: string) {
+        return this.userRepository.findOneBy({ email })
+    }
 }

@@ -26,6 +26,7 @@ describe('User (e2e)', () => {
 
         const userService = app.get(UserService)
         existingUser = await userService.findByEmail('existing.user@example.com')
+        existingUser = JSON.parse(JSON.stringify(existingUser)) // convert to regular object instead of 'User' class
     });
 
     afterAll(() => {
@@ -38,7 +39,7 @@ describe('User (e2e)', () => {
                 .get('/user/' + existingUser.email)
 
             expect(response.statusCode).toBe(200)
-            expect(response.body).toContain(existingUser)
+            expect(response.body).toMatchObject(existingUser)
         })
     });
 

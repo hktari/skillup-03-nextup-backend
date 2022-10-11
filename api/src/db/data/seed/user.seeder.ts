@@ -1,7 +1,7 @@
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
 import { User } from '../../../user/entities/user.entity';
-
+import { Event } from '../../../event/entities/event.entity'
 export default class UserSeeder implements Seeder {
   public async run(
     dataSource: DataSource,
@@ -10,6 +10,11 @@ export default class UserSeeder implements Seeder {
     console.log('users ....');
 
     const userFactory = factoryManager.get<User>(User)
-    userFactory.saveMany(10);
+    await userFactory.saveMany(5);
+
+    const eventFactory = factoryManager.get<Event>(Event)
+    await userFactory.save({
+      events: await eventFactory.saveMany(5)
+    })
   }
 }

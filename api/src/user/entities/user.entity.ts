@@ -1,5 +1,6 @@
-import { Entity, ObjectIdColumn, ObjectID, Column } from "typeorm"
-
+import { OneToMany, Entity, ObjectIdColumn, ObjectID, Column } from "typeorm"
+import { Booking } from "../../booking/entities/booking.entity"
+import { Event } from '../../event/entities/event.entity'
 @Entity()
 export class User {
 
@@ -20,4 +21,14 @@ export class User {
 
     @Column()
     imageUrl: string
+
+    @OneToMany(() => Booking, booking => booking.user, {
+        cascade: true
+    })
+    bookings: Booking[]
+
+    @OneToMany(() => Event, event => event.user, {
+        cascade: true
+    })
+    events: Event[]
 }

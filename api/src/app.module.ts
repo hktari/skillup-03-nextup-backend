@@ -4,11 +4,11 @@ import { AppService } from './app.service';
 import { LoggerModule } from './logger/logger.module';
 import { ConfigModule } from '@nestjs/config';
 import { EventModule } from './event/event.module';
+import { BookingModule } from './booking/booking.module';
 import { UserModule } from './user/user.module';
-import { EventModule } from './event/event.module';
 
 @Module({
-  imports: [LoggerModule, ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }), EventModule, UserModule,],
+  imports: [LoggerModule, ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }), EventModule, UserModule, BookingModule,],
   controllers: [AppController],
   providers: [AppService],
 })

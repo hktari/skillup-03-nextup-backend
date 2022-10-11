@@ -1,4 +1,6 @@
-import { Entity, ObjectIdColumn, ObjectID, Column } from "typeorm"
+import { ManyToOne, Entity, ObjectIdColumn, ObjectID, Column } from "typeorm"
+import { Booking } from "../../booking/entities/booking.entity"
+import { User } from "../../user/entities/user.entity"
 
 @Entity()
 export class Event {
@@ -20,4 +22,10 @@ export class Event {
 
     @Column()
     imageUrl: string
+
+    @ManyToOne(() => User, user => user.events)
+    user: User
+
+    @ManyToOne(() => Booking, booking => booking.event)
+    bookings: Booking[]
 }

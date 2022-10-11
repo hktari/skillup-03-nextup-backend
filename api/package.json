@@ -18,12 +18,12 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "pretest:e2e": "env-cmd -f ../test.env npm run test:typeorm schema:sync && npm run db:seed",
-    "test:e2e": "env-cmd -f ../test.env jest --config ./test/jest-e2e.json",
-    "posttest:e2e": "env-cmd -f ../test.env npm run test:typeorm schema:drop",
-    "db:seed": "env-cmd -f ../test.env ts-node ./src/db/seeddb-index.ts",
-    "typeorm": "env-cmd -f ../development.env typeorm-ts-node-esm -d src/data-source.ts",
-    "test:typeorm": "env-cmd -f ../test.env typeorm-ts-node-esm -d src/data-source.ts"
+    "pretest:e2e": "env-cmd -f test.env npm run test:typeorm schema:sync && npm run db:seed",
+    "test:e2e": "env-cmd -f test.env jest --config ./test/jest-e2e.json",
+    "posttest:e2e": "env-cmd -f test.env npm run test:typeorm schema:drop",
+    "db:seed": "env-cmd -f test.env ts-node ./src/db/seeddb-index.ts",
+    "typeorm": "env-cmd -f development.env typeorm-ts-node-esm -d src/data-source.ts",
+    "test:typeorm": "env-cmd -f test.env typeorm-ts-node-esm -d src/data-source.ts"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",

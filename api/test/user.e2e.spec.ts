@@ -35,10 +35,10 @@ describe('User (e2e)', () => {
     describe('GET /user/{id}', () => {
         it('should return 200 and existing user', async () => {
             const response = await request(app.getHttpServer())
-                .get('/user/' + existingUser.id)
+                .get('/user/' + existingUser.email)
 
             expect(response.statusCode).toBe(200)
-            expect(response.body).toMatchObject(existingUser)
+            expect(response.body).toContain(existingUser)
         })
     });
 

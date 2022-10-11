@@ -5,6 +5,7 @@ import { User } from './entities/user.entity';
 import { CryptoService } from '../auth/crypto.service';
 import { DataSource } from 'typeorm'
 import { InjectDataSource } from '@nestjs/typeorm'
+const ObjectId = require('mongodb').ObjectId;
 
 @Injectable()
 export class UserService {

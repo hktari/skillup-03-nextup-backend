@@ -11,10 +11,12 @@ import { LoggerModule } from '../src/logger/logger.module';
 import { UserModule } from '../src/user/user.module';
 import { ConfigModule } from '@nestjs/config'
 import { UserService } from '../src/user/user.service';
+import { expectEventEntity, expectPagedCollection } from './common';
 
 describe('User (e2e)', () => {
     let app: INestApplication;
     let existingUser: User;
+    let accessToken: string;
 
     beforeAll(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -27,6 +29,9 @@ describe('User (e2e)', () => {
         const userService = app.get(UserService)
         existingUser = await userService.findByEmail('existing.user@example.com')
         existingUser = JSON.parse(JSON.stringify(existingUser)) // convert to regular object instead of 'User' class
+
+        // login
+
     });
 
     afterAll(() => {
@@ -43,9 +48,29 @@ describe('User (e2e)', () => {
         })
     });
 
-    // describe('GET /user/upcoming-events', () => {
+    describe('GET /user/upcoming-events', () => {
+        it('should return 401 when not authenticated', async () => {
+            const response = await request(app.getHttpServer())
+                .get('/user/upcoming-events')
 
-    // })
+            expect(response.statusCode).toBe(401)
+        })
+
+        it('should return 200 and paginated collection of event objects', async () => {
+            const response = await request(app.getHttpServer())
+                .get('/user/upcoming-events')
+                .auth(accessToken, { type: 'bearer' })
+
+            expect(response.statusCode).toBe(200)
+
+            expectPagedCollection(response.body)
+
+            for (const event of response.body.items) {
+                expectEventEntity(event)
+            }
+        })
+    })
+
     // describe('GET /user/recent-events', () => {
 
     // })

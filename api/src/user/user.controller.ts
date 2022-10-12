@@ -30,6 +30,8 @@ export class UserController {
     @Query('pageSize', new DefaultValuePipe(10)) pageSize: number,
     @LoggedInUser() user: User) {
       this.logger.debug(JSON.stringify(user))
+
+      return user.bookings      
   }
 
 

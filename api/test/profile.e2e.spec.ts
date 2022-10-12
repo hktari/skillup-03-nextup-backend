@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { AppModule } from '../src/app.module';
 import { User } from '../src/user/entities/user.entity';
 import { AuthModule } from '../src/auth/auth.module';
 import { BookingModule } from '../src/booking/booking.module';
@@ -13,7 +13,7 @@ import { ConfigModule } from '@nestjs/config'
 import { UserService } from '../src/user/user.service';
 import { expectEventEntity, expectPagedCollection, getAuthToken } from './common';
 
-describe('User (e2e)', () => {
+describe('Profile (e2e)', () => {
     let app: INestApplication;
     let existingUser: User;
     let accessToken: string;
@@ -40,57 +40,27 @@ describe('User (e2e)', () => {
         }
     })
 
-    describe('GET /user/{id}', () => {
-        it('should return 200 and existing user', async () => {
-            const response = await request(app.getHttpServer())
-                .get('/user/' + existingUser.email)
-
-            expect(response.statusCode).toBe(200)
-            expect(response.body).toMatchObject(existingUser)
-        })
-    });
-
-    describe('GET /user/upcoming-events', () => {
+    describe('PUT /profile', () => {
         it('should return 401 when not authenticated', async () => {
             const response = await request(app.getHttpServer())
-                .get('/user/upcoming-events')
+                .put('/profile')
 
             expect(response.statusCode).toBe(401)
         })
 
-        it('should return 200 and paginated collection of event objects', async () => {
-            const response = await request(app.getHttpServer())
-                .get('/user/upcoming-events')
-                .auth(accessToken, { type: 'bearer' })
-
-            expect(response.statusCode).toBe(200)
-
-            expectPagedCollection(response.body)
-
-            for (const event of response.body.items) {
-                expectEventEntity(event)
+        it('should return 200 when valid request', async () => {
+            const userUpdate = {
+                firstName: 'Pehta',
+                lastName: 'Ferlin',
+                imageBase64: ''
             }
-        })
-    })
 
-    describe('GET /user/recent-events', () => {
-        it('should return 401 when not authenticated', async () => {
-            const response = await request(app.getHttpServer())
-                .get('/user/recent-events')
-
-            expect(response.statusCode).toBe(401)
-        })
-
-        it('should return 200 and paginated collection of event objects', async () => {
-            const response = await request(app.getHttpServer())
-                .get('/user/recent-events')
+            const respone = await request(app.getHttpServer())
+                .put('/profile')
                 .auth(accessToken, { type: 'bearer' })
+                .send(userUpdate)
 
-            expect(response.statusCode).toBe(200)
-            expectPagedCollection(response.body)
-            for (const item of response.body.items) {
-                expectEventEntity(item)
-            }
+            expect(respone.statusCode).toBe(200)
         })
     })
 });

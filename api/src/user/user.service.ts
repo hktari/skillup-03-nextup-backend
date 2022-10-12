@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from '../common/constants';
 import { Repository } from 'typeorm'
 import { User } from './entities/user.entity';
@@ -32,6 +32,30 @@ export class UserService {
     }
 
     async findByEmail(email: string) {
-        return this.userRepository.findOneBy({ email })
+        return this.userRepository.findOne({
+            where: { email },
+            relations: {
+                bookings: true,
+                events: true
+            }
+        })
+    }
+
+    async update(email: string, firstName?: string, lastName?: string, password?: string, imageUrl?: string) {
+        const user = await this.findByEmail(email)
+
+        if (!user) {
+            throw new NotFoundException(`User with email ${email} not found.`)
+        }
+
+        user.firstName = firstName ?? user.firstName
+        user.lastName = lastName ?? user.lastName
+        user.imageUrl = imageUrl ?? user.imageUrl
+
+        if (password) {
+            user.password = await this.cryptoService.hashPassword(password)
+        }
+
+        return await this.userRepository.save(user)
     }
 }

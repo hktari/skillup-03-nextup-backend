@@ -6,10 +6,11 @@ import { UserProviders } from './user.providers';
 import { AuthModule } from '../auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { User } from './entities/user.entity';
+import { ProfileController } from './profile.controller';
 
 @Module({
   imports: [DatabaseModule, forwardRef(() => AuthModule)],
-  controllers: [UserController],
+  controllers: [UserController, ProfileController],
   providers: [UserService],
   exports: [UserService]
 })

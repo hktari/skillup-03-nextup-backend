@@ -1,5 +1,7 @@
-import { ConsoleLogger, Controller, Get, Inject, NotFoundException, Param } from '@nestjs/common';
+import { ConsoleLogger, Controller, DefaultValuePipe, Get, Inject, NotFoundException, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
+import { LoggedInUser } from '../common/decorators/user.decorator';
 import { ILoggerServiceToken } from '../logger/winston-logger.service';
+import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -8,6 +10,25 @@ export class UserController {
     private readonly userService: UserService,
     @Inject(ILoggerServiceToken) private readonly logger: ConsoleLogger) {
     logger.setContext('UserController')
+  }
+
+
+  @Get('/recent-events')
+  // @UseGuards(AuthGuard())
+  async getRecentEvents(
+    @Query('startIdx', new DefaultValuePipe(0)) startIdx: number,
+    @Query('pageSize', new DefaultValuePipe(10)) pageSize: number,
+    @LoggedInUser() user: User) {
+
+  }
+
+  @Get('/upcoming-events')
+  // @UseGuards(AuthGuard())
+  async getUpcomingEvents(
+    @Query('startIdx', new DefaultValuePipe(0)) startIdx: number,
+    @Query('pageSize', new DefaultValuePipe(10)) pageSize: number,
+    @LoggedInUser() user: User) {
+
   }
 
 

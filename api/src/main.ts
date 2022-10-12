@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ILoggerServiceToken, WinstonLoggerService } from './logger/winston-logger.service';
@@ -9,6 +10,7 @@ async function bootstrap() {
   // Starts listening for shutdown hooks
   app.enableShutdownHooks();
 
+  app.useGlobalPipes(new ValidationPipe())
   await app.listen(3000);
 }
 bootstrap();

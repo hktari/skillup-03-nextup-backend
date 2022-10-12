@@ -71,9 +71,26 @@ describe('User (e2e)', () => {
         })
     })
 
-    // describe('GET /user/recent-events', () => {
+    describe('GET /user/recent-events', () => {
+        it('should return 401 when not authenticated', async () => {
+            const response = await request(app.getHttpServer())
+                .get('/user/recent-events')
 
-    // })
+            expect(response.statusCode).toBe(401)
+        })
+
+        it('should return 200 and paginated collection of event objects', async () => {
+            const response = await request(app.getHttpServer())
+                .get('/user/recent-events')
+                .auth(accessToken, { type: 'bearer' })
+
+            expect(response.statusCode).toBe(200)
+            expectPagedCollection(response.body)
+            for (const item of response.body.items) {
+                expectEventEntity(item)
+            }
+        })
+    })
 });
 
 

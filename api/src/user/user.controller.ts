@@ -1,4 +1,5 @@
 import { ConsoleLogger, Controller, DefaultValuePipe, Get, Inject, NotFoundException, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { LoggedInUser } from '../common/decorators/user.decorator';
 import { ILoggerServiceToken } from '../logger/winston-logger.service';
 import { User } from './entities/user.entity';
@@ -14,7 +15,7 @@ export class UserController {
 
 
   @Get('/recent-events')
-  // @UseGuards(AuthGuard())
+  @UseGuards(JwtAuthGuard)
   async getRecentEvents(
     @Query('startIdx', new DefaultValuePipe(0)) startIdx: number,
     @Query('pageSize', new DefaultValuePipe(10)) pageSize: number,
@@ -23,12 +24,12 @@ export class UserController {
   }
 
   @Get('/upcoming-events')
-  // @UseGuards(AuthGuard())
+  @UseGuards(JwtAuthGuard)
   async getUpcomingEvents(
     @Query('startIdx', new DefaultValuePipe(0)) startIdx: number,
     @Query('pageSize', new DefaultValuePipe(10)) pageSize: number,
     @LoggedInUser() user: User) {
-
+      this.logger.debug(JSON.stringify(user))
   }
 
 

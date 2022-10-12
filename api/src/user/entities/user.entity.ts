@@ -1,10 +1,13 @@
 import { OneToMany, Entity, ObjectIdColumn, ObjectID, Column } from "typeorm"
 import { Booking } from "../../booking/entities/booking.entity"
 import { Event } from '../../event/entities/event.entity'
+import {Exclude} from 'class-transformer'
+
 @Entity()
 export class User {
 
     @ObjectIdColumn()
+    @Exclude()
     id: ObjectID
 
     @Column()
@@ -17,6 +20,7 @@ export class User {
     email: string
 
     @Column()
+    @Exclude()
     password: string
 
     @Column()

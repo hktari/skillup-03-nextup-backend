@@ -23,4 +23,6 @@ export class EventService {
   remove(id: number) {
     return `This action removes a #${id} event`;
   }
+
+  findUpcomingEvents
 }

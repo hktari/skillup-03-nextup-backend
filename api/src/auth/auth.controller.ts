@@ -1,5 +1,6 @@
-import { Body, ConsoleLogger, Controller, Inject, Post, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, ConsoleLogger, Controller, Inject, Post, Req, UseGuards, ValidationPipe } from '@nestjs/common';
 import { ILoggerServiceToken } from '../logger/winston-logger.service';
+import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 
@@ -7,21 +8,21 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 @Controller('auth')
 export class AuthController {
 
-    constructor(@Inject(ILoggerServiceToken) private readonly logger: ConsoleLogger) {
+    constructor(@Inject(ILoggerServiceToken) private readonly logger: ConsoleLogger,
+        private readonly authService: AuthService) {
 
     }
 
     @Post('login')
     @UseGuards(LocalAuthGuard)
-    login(@Body('email', new ValidationPipe()) email: string, @Body('password', new ValidationPipe()) password: string) {
-        this.logger.debug('login: ' + email)
-        this.logger.debug('login: ' + password)
+    login(@Req() req) {
+        return this.authService.login(req.user)
 
     }
 
     @Post('signup')
     signup(@Body() signupDto: SignupDto) {
         this.logger.debug('signup')
-        
+        return this.authService.signup(signupDto)
     }
 }

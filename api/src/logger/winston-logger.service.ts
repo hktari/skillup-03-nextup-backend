@@ -39,6 +39,19 @@ export class WinstonLoggerService extends ConsoleLogger {
     }
 
 
+    log(message: string) {
+        super.log(message)
+
+        if (this.winston) {
+            this.winston.log({
+                level: 'info',
+                timestamp: new Date().toISOString(),
+                message,
+                context: this.context
+            })
+        }
+    }
+
     warn(message: any) {
         super.warn(message)
 

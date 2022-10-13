@@ -7,7 +7,7 @@ export class LoggingMiddleware implements NestMiddleware {
   constructor(@Inject(ILoggerServiceToken) private readonly logger: ConsoleLogger) {}
 
   use(req: Request, res: Response, next: NextFunction) {
-    this.logger.debug(`[${req.method}]: ${req.originalUrl}`);
+    this.logger.log(`[${req.method}]: ${req.originalUrl}`);
     next();
   }
 }

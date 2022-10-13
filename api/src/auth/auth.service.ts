@@ -35,7 +35,7 @@ export class AuthService {
             email,
             firstName,
             lastName,
-            password: await this.cryptoService.hashPassword(password),
+            password,
             imageUrl: 'TODO'
         }
         return await this.usersService.create(signup.firstName, signup.lastName, signup.email, signup.password, signup.imageUrl)

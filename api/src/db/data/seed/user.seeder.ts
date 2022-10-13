@@ -14,6 +14,7 @@ export default class UserSeeder implements Seeder {
     const eventFactory = factoryManager.get<Event>(Event)
     const existingUser = await userFactory.save({
       email: 'existing.user@example.com',
+      password: '$2b$10$3bl89uhGn3B03YzKY6hKTuFAWMC55cgY/YuPDTSshhKk8QHPIKWHy', //secret
       events: await eventFactory.saveMany(4)
     })
 

@@ -1,5 +1,5 @@
 
-import { BadRequestException, Body, ConsoleLogger, Controller, DefaultValuePipe, Get, Inject, NotFoundException, Param, ParseIntPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, ConsoleLogger, Controller, DefaultValuePipe, Get, Inject, NotFoundException, Param, ParseIntPipe, Post, Put, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { LoggedInUser } from '../common/decorators/user.decorator';
@@ -7,6 +7,7 @@ import { ILoggerServiceToken } from '../logger/winston-logger.service';
 import { UpdateUserDto } from './dto/UpdateUserDto';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
+import { Response } from 'express'
 
 @Controller('profile')
 @UseGuards(JwtAuthGuard)
@@ -30,6 +31,7 @@ export class ProfileController {
 
     @Post('change-password')
     async updatePassword(
+        @Res() res : Response,
         @LoggedInUser() user: User,
         @Body('oldPassword') oldPassword: string,
         @Body('newPassword') newPassword: string) {
@@ -39,12 +41,15 @@ export class ProfileController {
             throw new BadRequestException('Invalid value for oldPassword')
         }
 
-        return this.userService.update(user.email, undefined, undefined, newPassword, undefined)
+        await this.userService.update(user.email, undefined, undefined, newPassword, undefined)
+        
+        this.logger.debug('successfuly changed password')
+        res.sendStatus(200)
     }
 
-
-    // - POST /profile/change-password
-    // - GET /profile
-
+    @Get()
+    get(@LoggedInUser() user: User) {
+        return user
+    }
 
 }

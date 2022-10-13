@@ -14,7 +14,6 @@ export function getAuthToken(app, { email, password }: User) {
 
 /* ------------------------------- // utility ------------------------------- */
 export function expectUserEntity(user: any, expectRelations = true) {
-  expect(user).toHaveProperty('id');
   expect(user).toHaveProperty('firstName');
   expect(user).toHaveProperty('lastName');
   expect(user).toHaveProperty('email');
@@ -27,7 +26,6 @@ export function expectUserEntity(user: any, expectRelations = true) {
 }
 
 export function expectEventEntity(event: any, expectRelations = true) {
-  expect(event).toHaveProperty('id')
   expect(event).toHaveProperty('title')
   expect(event).toHaveProperty('description')
   expect(event).toHaveProperty('location')

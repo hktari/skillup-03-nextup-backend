@@ -1,9 +1,9 @@
-import { Body, ClassSerializerInterceptor, ConsoleLogger, Controller, Inject, Post, Req, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, ConsoleLogger, Controller, Inject, Post, Req, Res, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { ILoggerServiceToken } from '../logger/winston-logger.service';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-
+import { Response } from 'express'
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('auth')
@@ -16,14 +16,13 @@ export class AuthController {
 
     @Post('login')
     @UseGuards(LocalAuthGuard)
-    login(@Req() req) {
-        this.logger.debug('login')
-        return this.authService.login(req.user)
+    async login(@Req() req, @Res() res: Response) {
+        const jwt = await this.authService.login(req.user)
+        res.status(200).json(jwt)
     }
 
     @Post('signup')
     signup(@Body() signupDto: SignupDto) {
-        this.logger.debug('signup')
         return this.authService.signup(signupDto)
     }
 }

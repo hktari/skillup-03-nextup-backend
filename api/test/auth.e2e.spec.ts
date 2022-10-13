@@ -71,7 +71,7 @@ describe('Auth (e2e)', () => {
                 .send(validPayload)
 
             expect(response.statusCode).toBe(201)
-            expectUserEntity(response.body)
+            expectUserEntity(response.body, false)
         })
     })
 

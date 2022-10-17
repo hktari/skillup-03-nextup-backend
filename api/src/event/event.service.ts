@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotImplementedException } from '@nestjs/common';
+import { ConsoleLogger, Inject, Injectable, NotFoundException, NotImplementedException } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { InjectDataSource } from '@nestjs/typeorm'
@@ -6,23 +6,47 @@ import { DataSource, MongoRepository } from 'typeorm'
 import { Event } from './entities/event.entity'
 import { PaginatedCollection } from '../common/interface/PaginatedCollection';
 import { User } from '../user/entities/user.entity';
+import { ILoggerServiceToken } from '../logger/winston-logger.service';
+import { Booking } from '../booking/entities/booking.entity';
+const ObjectId = require('mongodb').ObjectId;
+
 @Injectable()
 export class EventService {
   private readonly eventRepository: MongoRepository<Event>;
   private readonly userRepository: MongoRepository<User>;
+  private readonly bookingRepository: MongoRepository<Booking>;
 
   constructor(
-    @InjectDataSource() private dataSource: DataSource,) {
+    @InjectDataSource() private dataSource: DataSource,
+    @Inject(ILoggerServiceToken) private logger: ConsoleLogger) {
+    this.logger.setContext('EventService')
+
+    this.bookingRepository = this.dataSource.getMongoRepository<Booking>(Booking)
     this.eventRepository = this.dataSource.getMongoRepository<Event>(Event)
     this.userRepository = this.dataSource.getMongoRepository<User>(User)
   }
 
+  private mapToEventEntity(doc: any) {
+    const event = new Event()
+    event.eventId = doc.eventId
+    event.title = doc.title
+    event.description = doc.description
+    event.datetime = doc.datetime
+    event.imageUrl = doc.imageUrl
+    event.location = doc.location
+    event.max_users = doc.max_users
+    return event
+  }
+
 
   create(user: User, createEventDto: CreateEventDto) {
-    throw new NotImplementedException()
-    // const event = this.eventRepository.create(createEventDto)
-    // event.userId = user.id
-    // return this.eventRepository.save(event)
+    const event = this.eventRepository.create(createEventDto)
+    if (!user.events) {
+      user.events = []
+    }
+
+    user.events.push(event)
+    return this.userRepository.save(user)
   }
 
   async findAll() {
@@ -36,17 +60,7 @@ export class EventService {
     ]).toArray()
 
     // manually map to 'Event' class
-    return eventDocumentArr.map(doc => {
-      const event = new Event()
-      event.eventId = doc.eventId
-      event.title = doc.title
-      event.description = doc.description
-      event.datetime = doc.datetime
-      event.imageUrl = doc.imageUrl
-      event.location = doc.location
-      event.max_users = doc.max_users
-      return event
-    })
+    return eventDocumentArr.map(doc => this.mapToEventEntity(doc))
   }
 
   findOne(id: number) {
@@ -62,18 +76,62 @@ export class EventService {
   }
 
   async findForUser(email: string, startIdx: number, pageSize: number): Promise<PaginatedCollection<Event>> {
-    throw new NotImplementedException()
-    // const [items, totalItems] = await this.userRepository.findAndCount({
-    //   where: {
-    //     "user.email": { $eq: email },
-    //   },
-    // })
+    const user = await this.userRepository.findOneBy({
+      where: {
+        "user.email": { $eq: email },
+      },
+    })
 
-    // return {
-    //   items,
-    //   totalItems,
-    //   startIdx,
-    //   pageSize
-    // }
+    if (!user) {
+      throw new NotFoundException()
+    }
+
+    return {
+      items: user.events.slice(startIdx, startIdx + pageSize),
+      totalItems: user.events.length,
+      startIdx,
+      pageSize
+    }
+  }
+
+  async getUpcomingEventsForUser(user: User, startIdx: number, pageSize: number): Promise<PaginatedCollection<Event>> {
+    this.logger.debug('getUpcomingEventsForUser')
+    this.logger.debug('user.id ' + user.id)
+
+    const bookings = await this.bookingRepository.aggregate(
+      [
+        {
+          $match: {
+            "userId": {$eq: ObjectId(user.id)}
+          }
+        }
+      ]).toArray()
+
+    this.logger.debug(`bookings: ` + JSON.stringify(bookings))
+
+    const bookedEventIds = bookings.map(booking => booking.eventId)
+
+    this.logger.debug(`booked eventIds: ` + JSON.stringify(bookedEventIds))
+
+    const eventDocumentArr = await this.userRepository.aggregate([
+      {
+        $unwind: "$events"
+      },
+      {
+        $match: {
+          "events.eventId": { $in: bookedEventIds }
+        }
+      },
+      {
+        $replaceRoot: { newRoot: "$events" }
+      }
+    ]).toArray()
+
+    return {
+      items: eventDocumentArr.map(doc => this.mapToEventEntity(doc)),
+      totalItems: eventDocumentArr.length,
+      startIdx,
+      pageSize
+    }
   }
 }

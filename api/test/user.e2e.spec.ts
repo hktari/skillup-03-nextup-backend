@@ -31,7 +31,7 @@ describe('User (e2e)', () => {
         existingUser = JSON.parse(JSON.stringify(existingUser)) // convert to regular object instead of 'User' class
 
         // login
-        accessToken = await getAuthToken(app, 'existing.user@example.com', 'secret')
+        accessToken = await getAuthToken(app, { email: 'existing.user@example.com', password: 'secret'})
     });
 
     afterAll(() => {

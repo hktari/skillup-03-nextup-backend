@@ -24,6 +24,7 @@ export class UserController {
     @Query('pageSize', new DefaultValuePipe(10)) pageSize: number,
     @LoggedInUser() user: User) {
 
+    return this.eventService.findForUser(user.email, startIdx, pageSize)
   }
 
   @Get('/upcoming-events')
@@ -32,9 +33,7 @@ export class UserController {
     @Query('startIdx', new DefaultValuePipe(0)) startIdx: number,
     @Query('pageSize', new DefaultValuePipe(10)) pageSize: number,
     @LoggedInUser() user: User) {
-    this.logger.debug(JSON.stringify(user))
-
-    return this.eventService.findForUser(user.email, startIdx, pageSize)
+    return this.eventService.getUpcomingEventsForUser(user, startIdx, pageSize)
   }
 
 

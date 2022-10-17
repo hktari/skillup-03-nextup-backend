@@ -91,6 +91,11 @@ export class EventService {
 
   async getFeatured() {
     const totalItems = await this.count()
+
+    if(totalItems === 0){
+      return {}
+    }
+
     const randIdx = Math.floor(Math.random() * totalItems)
 
     const randomEvent = await this.userRepository.aggregate([
@@ -111,8 +116,26 @@ export class EventService {
     return this.mapToEventEntity(randomEvent)
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} event`;
+  async findOne(id: string) {
+    const eventDocument = await this.userRepository.aggregate([
+      {
+        $unwind: "$events"
+      },
+      {
+        $replaceRoot: { newRoot: "$events" }
+      },
+      {
+        $match: {
+          "eventId": { $eq: ObjectId(id) }
+        }
+      }
+    ]).next()
+
+    if (!eventDocument) {
+      throw new NotFoundException()
+    }
+
+    return this.mapToEventEntity(eventDocument)
   }
 
   update(id: number, updateEventDto: UpdateEventDto) {

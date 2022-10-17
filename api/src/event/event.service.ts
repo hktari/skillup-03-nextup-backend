@@ -141,7 +141,6 @@ export class EventService {
   }
 
   async update(user: User, id: string, updateEventDto: UpdateEventDto) {
-
     const eventIdx = user.events.findIndex((ev) => ev.eventId?.toString() === id)
     if (eventIdx === -1) {
       throw new NotFoundException(`Failed to find event ${id} inside user ${user.id}`)

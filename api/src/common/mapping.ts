@@ -20,7 +20,7 @@ export function mapToEventEntity(doc: any) {
     event.location = doc.location
     event.max_users = doc.max_users
     if (doc.bookings) {
-        event.bookings = doc.bookings.map(bookingDoc => this.mapToBookingEntity(bookingDoc))
+        event.bookings = doc.bookings.map(bookingDoc => mapToBookingEntity(bookingDoc))
     }
     return event
 }

@@ -26,6 +26,10 @@ describe('Event (e2e)', () => {
     let anotherUser: User;
     let accessToken: string;
 
+    let existingEvent
+    let forbiddenEvent
+    let bookEvent
+
     beforeAll(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [LoggerModule, ConfigModule.forRoot({ envFilePath: 'test.env', isGlobal: true }), UserModule, EventModule],
@@ -50,6 +54,11 @@ describe('Event (e2e)', () => {
 
         // login
         accessToken = await getAuthToken(app, { email: 'existing.user@example.com', password: 'secret' })
+
+
+        existingEvent = existingUser.events[0]
+        forbiddenEvent = anotherUser.events[0]
+        bookEvent = anotherUser.events[0]
     });
 
     afterAll(() => {
@@ -94,6 +103,56 @@ describe('Event (e2e)', () => {
         })
     })
 
+    describe('POST /event/{id}/book', () => {
+
+        it('should return 401 when not authenticated', async () => {
+            const response = await request(app.getHttpServer())
+                .post(`/event/${bookEvent.eventId}/book`)
+            expect(response.statusCode).toBe(401)
+        })
+
+        it('should return 404 when event doesnt exist', async () => {
+            const response = await request(app.getHttpServer())
+                .post(`/event/99999937dd83e77ac5482d99/book`)
+                .auth(accessToken, { type: 'bearer' })
+
+            expect(response.statusCode).toBe(404)
+        })
+
+        it('should return 200 when request is valid', async () => {
+            const response = await request(app.getHttpServer())
+                .post(`/event/${bookEvent.eventId}/book`)
+                .auth(accessToken, { type: 'bearer' })
+
+            expect(response.statusCode).toBe(200)
+        })
+    })
+
+    describe('DELETE /event/{id}/book', () => {
+
+        it('should return 401 when not authenticated', async () => {
+            const response = await request(app.getHttpServer())
+                .delete(`/event/${bookEvent.eventId}/book`)
+            expect(response.statusCode).toBe(401)
+        })
+
+        it('should return 404 when event doesnt exist', async () => {
+            const response = await request(app.getHttpServer())
+                .delete(`/event/99999937dd83e77ac5482d99/book`)
+                .auth(accessToken, { type: 'bearer' })
+
+            expect(response.statusCode).toBe(404)
+        })
+
+        it('should return 201 when request is valid', async () => {
+            const response = await request(app.getHttpServer())
+                .delete(`/event/${bookEvent.eventId}/book`)
+                .auth(accessToken, { type: 'bearer' })
+
+            expect(response.statusCode).toBe(201)
+        })
+    })
+
 
     describe('POST /event', () => {
         const newEventDto: CreateEventDto = {
@@ -127,8 +186,7 @@ describe('Event (e2e)', () => {
 
 
     describe('PUT /event/{id}', () => {
-        let existingEvent
-        let forbiddenEvent
+
         const updateEventDto: UpdateEventDto = {
             title: 'New Title',
             description: 'New Event Description',
@@ -138,11 +196,6 @@ describe('Event (e2e)', () => {
             max_users: 100
         }
 
-
-        beforeAll(() => {
-            existingEvent = existingUser.events[0]
-            forbiddenEvent = anotherUser.events[0]
-        })
 
         it('should return 401 when not authenticated', async () => {
             const response = await request(app.getHttpServer())

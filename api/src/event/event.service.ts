@@ -26,6 +26,14 @@ export class EventService {
     this.userRepository = this.dataSource.getMongoRepository<User>(User)
   }
 
+  private mapToBookingEntity(doc: any) {
+    let booking = new Booking()
+    booking.eventId = doc.eventId
+    booking.userId = doc.userId
+    booking.id = doc.id
+    return booking
+  }
+
   private mapToEventEntity(doc: any) {
     const event = new Event()
     event.eventId = doc.eventId
@@ -35,6 +43,9 @@ export class EventService {
     event.imageUrl = doc.imageUrl
     event.location = doc.location
     event.max_users = doc.max_users
+    if (doc.bookings) {
+      event.bookings = doc.bookings.map(bookingDoc => this.mapToBookingEntity(bookingDoc))
+    }
     return event
   }
 
@@ -92,7 +103,7 @@ export class EventService {
   async getFeatured() {
     const totalItems = await this.count()
 
-    if(totalItems === 0){
+    if (totalItems === 0) {
       return {}
     }
 
@@ -127,6 +138,15 @@ export class EventService {
       {
         $match: {
           "eventId": { $eq: ObjectId(id) }
+        }
+      },
+      {
+        $lookup:
+        {
+          from: "booking",
+          localField: "eventId",
+          foreignField: "eventId",
+          as: "bookings"
         }
       }
     ]).next()

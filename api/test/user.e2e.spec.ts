@@ -73,7 +73,7 @@ describe('User (e2e)', () => {
             expectPagedCollection(response.body)
 
             for (const event of response.body.items) {
-                expectEventEntity(event)
+                expectEventEntity(event, false)
             }
         })
     })
@@ -94,7 +94,7 @@ describe('User (e2e)', () => {
             expect(response.statusCode).toBe(200)
             expectPagedCollection(response.body)
             for (const item of response.body.items) {
-                expectEventEntity(item)
+                expectEventEntity(item, false)
             }
         })
     })

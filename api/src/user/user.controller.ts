@@ -24,7 +24,7 @@ export class UserController {
     @Query('pageSize', new DefaultValuePipe(10)) pageSize: number,
     @LoggedInUser() user: User) {
 
-    return this.eventService.findForUser(user.email, startIdx, pageSize)
+    return this.eventService.findForUser(user, startIdx, pageSize)
   }
 
   @Get('/upcoming-events')

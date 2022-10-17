@@ -75,17 +75,7 @@ export class EventService {
     return `This action removes a #${id} event`;
   }
 
-  async findForUser(email: string, startIdx: number, pageSize: number): Promise<PaginatedCollection<Event>> {
-    const user = await this.userRepository.findOneBy({
-      where: {
-        "user.email": { $eq: email },
-      },
-    })
-
-    if (!user) {
-      throw new NotFoundException()
-    }
-
+  async findForUser(user: User, startIdx: number, pageSize: number): Promise<PaginatedCollection<Event>> {
     return {
       items: user.events.slice(startIdx, startIdx + pageSize),
       totalItems: user.events.length,

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, DefaultValuePipe, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body,Put, Patch, Param, Delete, DefaultValuePipe, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { EventService } from './event.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
@@ -33,7 +33,7 @@ export class EventController {
     return this.eventService.findOne(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UseGuards(JwtAuthGuard)
   update(@LoggedInUser() user, @Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
     return this.eventService.update(user, id, updateEventDto);

@@ -18,6 +18,7 @@ import { CreateEventDto } from '../src/event/dto/create-event.dto';
 import { NextFunction } from 'express';
 import { ILoggerServiceToken } from '../src/logger/winston-logger.service';
 import { Request } from 'express'
+import { UpdateEventDto } from '../src/event/dto/update-event.dto';
 
 describe('Event (e2e)', () => {
     let app: INestApplication;
@@ -36,7 +37,7 @@ describe('Event (e2e)', () => {
             logger.log(`[${req.method}]: ${req.originalUrl}`);
             next();
         })
-        
+
         await app.init();
 
         const userService = app.get(UserService)
@@ -166,9 +167,61 @@ describe('Event (e2e)', () => {
         })
     })
 
+
+    describe('PUT /event/{id}', () => {
+        let existingEvent
+        let forbiddenEvent
+        const updateEventDto: UpdateEventDto = {
+            title: 'New Title',
+            description: 'New Event Description',
+            datetime: new Date(),
+            imageUrl: 'https://new-image-url.com',
+            location: 'New Location',
+            max_users: 100
+        }
+
+
+        beforeAll(() => {
+            existingEvent = existingUser.events[0]
+            forbiddenEvent = anotherUser.events[0]
+        })
+
+        it('should return 401 when not authenticated', async () => {
+            const response = await request(app.getHttpServer())
+                .put('/event/' + existingEvent.eventId)
+                .send(updateEventDto)
+
+            expect(response.statusCode).toBe(401)
+        })
+
+
+        it('should return 404 when event is not found', async () => {
+            const response = await request(app.getHttpServer())
+                .put('/event/634d2137dd83e77ac5482d25')
+                .auth(accessToken, { type: 'bearer' })
+                .send(updateEventDto)
+
+            expect(response.statusCode).toBe(404)
+        })
+
+        it('should return 404 when event is not owned by user', async () => {
+            const response = await request(app.getHttpServer())
+                .put('/event/' + forbiddenEvent.eventId)
+                .auth(accessToken, { type: 'bearer' })
+                .send(updateEventDto)
+
+            expect(response.statusCode).toBe(404)
+        })
+
+        it('should return 200 when valid request', async () => {
+            const response = await request(app.getHttpServer())
+                .put('/event/' + existingEvent.eventId)
+                .auth(accessToken, { type: 'bearer' })
+                .send(updateEventDto)
+
+            expect(response.statusCode).toBe(200)
+        })
+    })
+
 });
-
-
-    // DELETE /event (auth guard)
-    // PUT /event (auth guard)
 

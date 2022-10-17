@@ -163,8 +163,25 @@ export class EventService {
     return this.mapToEventEntity(eventDocument)
   }
 
-  update(user: User, id: string, updateEventDto: UpdateEventDto) {
-    return `This action updates a #${id} event`;
+  async update(user: User, id: string, updateEventDto: UpdateEventDto) {
+
+    const eventIdx = user.events.findIndex((ev) => ev.eventId?.toString() === id)
+    if (eventIdx === -1) {
+      throw new NotFoundException(`Failed to find event ${id} inside user ${user.id}`)
+    }
+
+    const eventToChange = user.events[eventIdx]
+    eventToChange.title = updateEventDto.title ?? eventToChange.title
+    eventToChange.description = updateEventDto.description ?? eventToChange.description
+    eventToChange.datetime = updateEventDto.datetime ?? eventToChange.datetime
+    eventToChange.imageUrl = updateEventDto.imageUrl ?? eventToChange.imageUrl
+    eventToChange.location = updateEventDto.location ?? eventToChange.location
+    eventToChange.max_users = updateEventDto.max_users ?? eventToChange.max_users
+
+    user = await this.userRepository.save(user)
+
+    return user.events.find(ev => ev.eventId === eventToChange.eventId)
+
   }
 
   async remove(user: User, id: string) {

@@ -16,6 +16,7 @@ export default class UserSeeder implements Seeder {
     const eventFactory = factoryManager.get<Event>(Event)
     const userRepository = dataSource.getRepository(User)
 
+    /* ------------------------------ existing user ----------------------------- */
 
     let existingUser = await userFactory.save({
       email: 'existing.user@example.com',
@@ -30,6 +31,24 @@ export default class UserSeeder implements Seeder {
     }
 
     existingUser = await userRepository.save(existingUser)
+
+
+    /* ------------------------------ another user ------------------------------ */
+
+    let anotherUser = await userFactory.save({
+      email: 'another.user@example.com',
+      password: '$2b$10$3bl89uhGn3B03YzKY6hKTuFAWMC55cgY/YuPDTSshhKk8QHPIKWHy', //secret
+      events: []
+    })
+
+    for (let i = 0; i < 5; i++) {
+      const event = await eventFactory.make({
+      })
+      anotherUser.events.push(event)
+    }
+
+    anotherUser = await userRepository.save(anotherUser)
+
 
 
     let otherUser: User

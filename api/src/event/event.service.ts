@@ -8,6 +8,7 @@ import { PaginatedCollection } from '../common/interface/PaginatedCollection';
 import { User } from '../user/entities/user.entity';
 import { ILoggerServiceToken } from '../logger/winston-logger.service';
 import { Booking } from '../booking/entities/booking.entity';
+import { mapToEventEntity } from '../common/mapping';
 const ObjectId = require('mongodb').ObjectId;
 
 @Injectable()
@@ -25,30 +26,6 @@ export class EventService {
     this.eventRepository = this.dataSource.getMongoRepository<Event>(Event)
     this.userRepository = this.dataSource.getMongoRepository<User>(User)
   }
-
-  private mapToBookingEntity(doc: any) {
-    let booking = new Booking()
-    booking.eventId = doc.eventId
-    booking.userId = doc.userId
-    booking.id = doc.id
-    return booking
-  }
-
-  private mapToEventEntity(doc: any) {
-    const event = new Event()
-    event.eventId = doc.eventId
-    event.title = doc.title
-    event.description = doc.description
-    event.datetime = doc.datetime
-    event.imageUrl = doc.imageUrl
-    event.location = doc.location
-    event.max_users = doc.max_users
-    if (doc.bookings) {
-      event.bookings = doc.bookings.map(bookingDoc => this.mapToBookingEntity(bookingDoc))
-    }
-    return event
-  }
-
 
   async create(user: User, createEventDto: CreateEventDto) {
     const event = this.eventRepository.create(createEventDto)
@@ -99,7 +76,7 @@ export class EventService {
     // manually map to 'Event' class
     return {
       totalItems: await this.count(),
-      items: eventDocumentArr.map(doc => this.mapToEventEntity(doc)),
+      items: eventDocumentArr.map(doc => mapToEventEntity(doc)),
       pageSize,
       startIdx
     }
@@ -129,7 +106,7 @@ export class EventService {
       }
     ]).next()
 
-    return this.mapToEventEntity(randomEvent)
+    return mapToEventEntity(randomEvent)
   }
 
   async findOne(id: string) {
@@ -160,7 +137,7 @@ export class EventService {
       throw new NotFoundException()
     }
 
-    return this.mapToEventEntity(eventDocument)
+    return mapToEventEntity(eventDocument)
   }
 
   async update(user: User, id: string, updateEventDto: UpdateEventDto) {
@@ -241,7 +218,7 @@ export class EventService {
     ]).toArray()
 
     return {
-      items: eventDocumentArr.map(doc => this.mapToEventEntity(doc)),
+      items: eventDocumentArr.map(doc => mapToEventEntity(doc)),
       totalItems: eventDocumentArr.length,
       startIdx,
       pageSize

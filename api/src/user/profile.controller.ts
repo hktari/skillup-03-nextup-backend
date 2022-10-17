@@ -31,7 +31,7 @@ export class ProfileController {
 
     @Post('change-password')
     async updatePassword(
-        @Res() res : Response,
+        @Res() res: Response,
         @LoggedInUser() user: User,
         @Body('oldPassword') oldPassword: string,
         @Body('newPassword') newPassword: string) {
@@ -42,13 +42,14 @@ export class ProfileController {
         }
 
         await this.userService.update(user.email, undefined, undefined, newPassword, undefined)
-        
+
         this.logger.debug('successfuly changed password')
         res.sendStatus(200)
     }
 
     @Get()
     get(@LoggedInUser() user: User) {
+        this.logger.debug('user object type:' + typeof user)
         return user
     }
 

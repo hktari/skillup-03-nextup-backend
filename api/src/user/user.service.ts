@@ -5,6 +5,7 @@ import { User } from './entities/user.entity';
 import { CryptoService } from '../auth/crypto.service';
 import { DataSource } from 'typeorm'
 import { InjectDataSource } from '@nestjs/typeorm'
+import { mapToUserEntity } from '../common/mapping';
 const ObjectId = require('mongodb').ObjectId;
 
 @Injectable()
@@ -31,10 +32,16 @@ export class UserService {
         return await this.userRepository.save(user)
     }
 
-    async findByEmail(email: string) {
-        return this.userRepository.findOne({
+    async findByEmail(email: string) : Promise<User> {
+        const userDoc = await this.userRepository.find({
             where: { email },
         })
+
+        if (!userDoc) {
+            return null
+        }
+
+        return mapToUserEntity(userDoc)
     }
 
     async update(email: string, firstName?: string, lastName?: string, password?: string, imageUrl?: string) {

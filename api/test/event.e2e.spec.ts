@@ -125,48 +125,6 @@ describe('Event (e2e)', () => {
     })
 
 
-    describe('DELETE /event', () => {
-        let existingEvent
-        let forbiddenEvent
-
-        beforeAll(() => {
-            existingEvent = existingUser.events[0]
-            forbiddenEvent = anotherUser.events[0]
-        })
-
-        it('should return 401 when not authenticated', async () => {
-            const response = await request(app.getHttpServer())
-                .delete('/event/' + existingEvent.eventId)
-
-            expect(response.statusCode).toBe(401)
-        })
-
-
-        it('should return 404 when event is not found', async () => {
-            const response = await request(app.getHttpServer())
-                .delete('/event/634d2137dd83e77ac5482d25')
-                .auth(accessToken, { type: 'bearer' })
-
-            expect(response.statusCode).toBe(404)
-        })
-
-        it('should return 404 when event is not owned by user', async () => {
-            const response = await request(app.getHttpServer())
-                .delete('/event/' + forbiddenEvent.eventId)
-                .auth(accessToken, { type: 'bearer' })
-
-            expect(response.statusCode).toBe(404)
-        })
-
-        it('should return 200 when valid request', async () => {
-            const response = await request(app.getHttpServer())
-                .delete('/event/' + existingEvent.eventId)
-                .auth(accessToken, { type: 'bearer' })
-
-            expect(response.statusCode).toBe(200)
-        })
-    })
-
 
     describe('PUT /event/{id}', () => {
         let existingEvent
@@ -223,5 +181,47 @@ describe('Event (e2e)', () => {
         })
     })
 
+
+    describe('DELETE /event', () => {
+        let existingEvent
+        let forbiddenEvent
+
+        beforeAll(() => {
+            existingEvent = existingUser.events[0]
+            forbiddenEvent = anotherUser.events[0]
+        })
+
+        it('should return 401 when not authenticated', async () => {
+            const response = await request(app.getHttpServer())
+                .delete('/event/' + existingEvent.eventId)
+
+            expect(response.statusCode).toBe(401)
+        })
+
+
+        it('should return 404 when event is not found', async () => {
+            const response = await request(app.getHttpServer())
+                .delete('/event/634d2137dd83e77ac5482d25')
+                .auth(accessToken, { type: 'bearer' })
+
+            expect(response.statusCode).toBe(404)
+        })
+
+        it('should return 404 when event is not owned by user', async () => {
+            const response = await request(app.getHttpServer())
+                .delete('/event/' + forbiddenEvent.eventId)
+                .auth(accessToken, { type: 'bearer' })
+
+            expect(response.statusCode).toBe(404)
+        })
+
+        it('should return 200 when valid request', async () => {
+            const response = await request(app.getHttpServer())
+                .delete('/event/' + existingEvent.eventId)
+                .auth(accessToken, { type: 'bearer' })
+
+            expect(response.statusCode).toBe(200)
+        })
+    })
 });
 

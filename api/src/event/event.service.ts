@@ -50,14 +50,19 @@ export class EventService {
   }
 
 
-  create(user: User, createEventDto: CreateEventDto) {
+  async create(user: User, createEventDto: CreateEventDto) {
     const event = this.eventRepository.create(createEventDto)
     if (!user.events) {
       user.events = []
     }
 
+    // needs to be created manually as _id is generated only when events are added to an event collection
+    event.eventId = ObjectId()
+
     user.events.push(event)
-    return this.userRepository.save(user)
+    user = await this.userRepository.save(user)
+
+    return user.events.find(ev => event.eventId === ev.eventId)
   }
 
   async count() {
@@ -158,12 +163,22 @@ export class EventService {
     return this.mapToEventEntity(eventDocument)
   }
 
-  update(id: number, updateEventDto: UpdateEventDto) {
+  update(user: User, id: string, updateEventDto: UpdateEventDto) {
     return `This action updates a #${id} event`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} event`;
+  async remove(user: User, id: string) {
+    this.logger.debug(JSON.stringify(user.events))
+
+    const toDeleteIdx = user.events.findIndex(ev => ev.eventId?.toString() == id)
+    this.logger.debug('index of event to be deleted: ' + toDeleteIdx)
+
+    if (toDeleteIdx === -1) {
+      throw new NotFoundException(`Failed to find event: ${id} inside user: ${user.id}`)
+    }
+
+    user.events.splice(toDeleteIdx, 1)
+    await this.userRepository.save(user)
   }
 
   async findForUser(user: User, startIdx: number, pageSize: number): Promise<PaginatedCollection<Event>> {

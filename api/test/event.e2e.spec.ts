@@ -15,6 +15,9 @@ import { UserService } from '../src/user/user.service';
 import { expectEventEntity, expectPagedCollection, getAuthToken } from './common';
 import userFactory from '../src/db/data/factory/user.factory';
 import { CreateEventDto } from '../src/event/dto/create-event.dto';
+import { NextFunction } from 'express';
+import { ILoggerServiceToken } from '../src/logger/winston-logger.service';
+import { Request } from 'express'
 
 describe('Event (e2e)', () => {
     let app: INestApplication;
@@ -28,6 +31,12 @@ describe('Event (e2e)', () => {
         }).compile();
 
         app = moduleFixture.createNestApplication();
+        app.use((req: Request, res: Response, next: NextFunction) => {
+            const logger = app.get(ILoggerServiceToken);
+            logger.log(`[${req.method}]: ${req.originalUrl}`);
+            next();
+        })
+        
         await app.init();
 
         const userService = app.get(UserService)
@@ -110,7 +119,7 @@ describe('Event (e2e)', () => {
                 .send(newEventDto)
 
             expect(response.statusCode).toBe(201)
-            expectEventEntity(response.body)
+            expectEventEntity(response.body, false)
         })
     })
 
@@ -134,18 +143,18 @@ describe('Event (e2e)', () => {
 
         it('should return 404 when event is not found', async () => {
             const response = await request(app.getHttpServer())
-                .delete('/event/498e74bb10214d9b8ee5e8d1ed715590')
+                .delete('/event/634d2137dd83e77ac5482d25')
                 .auth(accessToken, { type: 'bearer' })
 
             expect(response.statusCode).toBe(404)
         })
 
-        it('should return 403 when event is not owned by user', async () => {
+        it('should return 404 when event is not owned by user', async () => {
             const response = await request(app.getHttpServer())
                 .delete('/event/' + forbiddenEvent.eventId)
                 .auth(accessToken, { type: 'bearer' })
 
-            expect(response.statusCode).toBe(403)
+            expect(response.statusCode).toBe(404)
         })
 
         it('should return 200 when valid request', async () => {

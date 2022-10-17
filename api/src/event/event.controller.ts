@@ -1,14 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, DefaultValuePipe, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, DefaultValuePipe, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { EventService } from './event.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { LoggedInUser } from '../common/decorators/user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('event')
 export class EventController {
-  constructor(private readonly eventService: EventService) {}
+  constructor(private readonly eventService: EventService) { }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   create(@LoggedInUser() user, @Body() createEventDto: CreateEventDto) {
     return this.eventService.create(user, createEventDto);
   }
@@ -22,7 +24,7 @@ export class EventController {
   }
 
   @Get('/featured')
-  getFeatured(){
+  getFeatured() {
     return this.eventService.getFeatured();
   }
 
@@ -32,12 +34,14 @@ export class EventController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
-    return this.eventService.update(+id, updateEventDto);
+  @UseGuards(JwtAuthGuard)
+  update(@LoggedInUser() user, @Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
+    return this.eventService.update(user, id, updateEventDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.eventService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  remove(@LoggedInUser() user, @Param('id') id: string) {
+    return this.eventService.remove(user, id);
   }
 }

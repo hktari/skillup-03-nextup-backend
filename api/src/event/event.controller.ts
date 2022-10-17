@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, DefaultValuePipe, Query, ParseIntPipe } from '@nestjs/common';
 import { EventService } from './event.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
@@ -14,8 +14,11 @@ export class EventController {
   }
 
   @Get()
-  findAll() {
-    return this.eventService.findAll();
+  findAll(
+    @Query('startIdx', new DefaultValuePipe(0), new ParseIntPipe()) startIdx: number,
+    @Query('pageSize', new DefaultValuePipe(10), new ParseIntPipe()) pageSize: number,
+  ) {
+    return this.eventService.findAll(startIdx, pageSize);
   }
 
   @Get(':id')

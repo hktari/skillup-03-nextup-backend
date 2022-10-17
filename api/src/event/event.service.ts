@@ -49,18 +49,38 @@ export class EventService {
     return this.userRepository.save(user)
   }
 
-  async findAll() {
+  async findAll(startIdx: number, pageSize: number) {
     const eventDocumentArr = await this.userRepository.aggregate([
       {
         $unwind: "$events"
       },
       {
         $replaceRoot: { newRoot: "$events" }
+      },
+      {
+        $skip: startIdx
+      },
+      {
+        $limit: pageSize
       }
     ]).toArray()
 
+    const { count } = await this.userRepository.aggregate([
+      {
+        $unwind: "$events"
+      },
+      {
+        $count: "count"
+      }
+    ]).next()
+
     // manually map to 'Event' class
-    return eventDocumentArr.map(doc => this.mapToEventEntity(doc))
+    return {
+      totalItems: count,
+      items: eventDocumentArr.map(doc => this.mapToEventEntity(doc)),
+      pageSize,
+      startIdx
+    }
   }
 
   findOne(id: number) {
@@ -92,7 +112,7 @@ export class EventService {
       [
         {
           $match: {
-            "userId": {$eq: ObjectId(user.id)}
+            "userId": { $eq: ObjectId(user.id) }
           }
         }
       ]).toArray()

@@ -1,7 +1,7 @@
-import {  Generated, PrimaryColumn, JoinColumn, ManyToOne, Entity, ObjectIdColumn, ObjectID, Column } from "typeorm"
+import { Generated, PrimaryColumn, JoinColumn, ManyToOne, Entity, ObjectIdColumn, ObjectID, Column } from "typeorm"
 import { Booking } from "../../booking/entities/booking.entity"
 import { User } from "../../user/entities/user.entity"
-import {Exclude,  Type } from 'class-transformer'
+import { Exclude, Type } from 'class-transformer'
 
 @Entity()
 export class Event {
@@ -27,4 +27,7 @@ export class Event {
 
     @Column()
     datetime: Date
+
+    @Type(() => Booking)
+    bookings: Booking[]
 }

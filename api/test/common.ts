@@ -32,7 +32,6 @@ export function expectEventEntity(event: any, expectRelations = true) {
   expect(event).toHaveProperty('max_users')
   expect(event).toHaveProperty('imageUrl')
   if (expectRelations) {
-    expect(event).toHaveProperty('user')
     expect(event).toHaveProperty('bookings')
   }
 }

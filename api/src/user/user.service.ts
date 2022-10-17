@@ -32,8 +32,8 @@ export class UserService {
         return await this.userRepository.save(user)
     }
 
-    async findByEmail(email: string) : Promise<User> {
-        const userDoc = await this.userRepository.find({
+    async findByEmail(email: string): Promise<User> {
+        const userDoc = await this.userRepository.findOne({
             where: { email },
         })
 

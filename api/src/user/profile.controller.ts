@@ -1,5 +1,5 @@
 
-import { BadRequestException, Body, ConsoleLogger, Controller, DefaultValuePipe, Get, Inject, NotFoundException, Param, ParseIntPipe, Post, Put, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, ClassSerializerInterceptor, ConsoleLogger, Controller, DefaultValuePipe, Get, Inject, NotFoundException, Param, ParseIntPipe, Post, Put, Query, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { LoggedInUser } from '../common/decorators/user.decorator';
@@ -11,6 +11,7 @@ import { Response } from 'express'
 
 @Controller('profile')
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(ClassSerializerInterceptor)
 export class ProfileController {
     constructor(
         private readonly userService: UserService,

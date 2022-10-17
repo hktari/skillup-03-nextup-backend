@@ -37,7 +37,5 @@ export function mapToUserEntity(userDoc: any) {
     if (userDoc.events) {
         user.events = userDoc.events.map(eventDoc => mapToEventEntity(eventDoc))
     }
-    user.events = userDoc
-
     return user;
 }

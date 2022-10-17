@@ -1,18 +1,21 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConsoleLogger, Inject, Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { CryptoService } from './crypto.service';
 import { JwtService } from '@nestjs/jwt';
 import { SignupDto } from './dto/signup.dto';
+import { ILoggerServiceToken } from '../logger/winston-logger.service';
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly usersService: UserService, private readonly cryptoService: CryptoService,
+    constructor(@Inject(ILoggerServiceToken) private logger: ConsoleLogger,
+        private readonly usersService: UserService, private readonly cryptoService: CryptoService,
         private readonly jwtService: JwtService) {
 
     }
 
     async validateUser(email: string, pass: string): Promise<any> {
         const user = await this.usersService.findByEmail(email);
+        this.logger.debug('user password: ' + user.password)
         if (user && await this.cryptoService.validatePassword(pass, user.password)) {
             return user
         }

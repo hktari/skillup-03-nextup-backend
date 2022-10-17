@@ -21,7 +21,6 @@ export function expectUserEntity(user: any, expectRelations = true) {
   expect(user).toHaveProperty('imageUrl');
   if (expectRelations) {
     expect(user).toHaveProperty('events');
-    expect(user).toHaveProperty('bookings');
   }
 }
 

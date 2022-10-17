@@ -21,6 +21,11 @@ export class EventController {
     return this.eventService.findAll(startIdx, pageSize);
   }
 
+  @Get('/featured')
+  getFeatured(){
+    return this.eventService.getFeatured();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.eventService.findOne(+id);

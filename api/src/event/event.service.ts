@@ -49,6 +49,19 @@ export class EventService {
     return this.userRepository.save(user)
   }
 
+  async count() {
+    const { count } = await this.userRepository.aggregate([
+      {
+        $unwind: "$events"
+      },
+      {
+        $count: "count"
+      }
+    ]).next()
+
+    return count
+  }
+
   async findAll(startIdx: number, pageSize: number) {
     const eventDocumentArr = await this.userRepository.aggregate([
       {
@@ -65,22 +78,37 @@ export class EventService {
       }
     ]).toArray()
 
-    const { count } = await this.userRepository.aggregate([
-      {
-        $unwind: "$events"
-      },
-      {
-        $count: "count"
-      }
-    ]).next()
+
 
     // manually map to 'Event' class
     return {
-      totalItems: count,
+      totalItems: await this.count(),
       items: eventDocumentArr.map(doc => this.mapToEventEntity(doc)),
       pageSize,
       startIdx
     }
+  }
+
+  async getFeatured() {
+    const totalItems = await this.count()
+    const randIdx = Math.floor(Math.random() * totalItems)
+
+    const randomEvent = await this.userRepository.aggregate([
+      {
+        $unwind: "$events"
+      },
+      {
+        $replaceRoot: { newRoot: "$events" }
+      },
+      {
+        $skip: randIdx
+      },
+      {
+        $limit: 1
+      }
+    ]).next()
+
+    return this.mapToEventEntity(randomEvent)
   }
 
   findOne(id: number) {

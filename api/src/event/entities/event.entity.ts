@@ -1,12 +1,14 @@
-import { ManyToOne, Entity, ObjectIdColumn, ObjectID, Column } from "typeorm"
+import {  Generated, PrimaryColumn, JoinColumn, ManyToOne, Entity, ObjectIdColumn, ObjectID, Column } from "typeorm"
 import { Booking } from "../../booking/entities/booking.entity"
 import { User } from "../../user/entities/user.entity"
+import {Exclude,  Type } from 'class-transformer'
 
 @Entity()
 export class Event {
 
     @ObjectIdColumn()
-    id: ObjectID
+    @Type(() => String)
+    eventId: ObjectID
 
     @Column()
     title: string
@@ -23,9 +25,6 @@ export class Event {
     @Column()
     imageUrl: string
 
-    @ManyToOne(() => User, user => user.events)
-    user: User
-
-    @ManyToOne(() => Booking, booking => booking.event)
-    bookings: Booking[]
+    @Column()
+    datetime: Date
 }

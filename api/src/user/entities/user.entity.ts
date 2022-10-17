@@ -1,13 +1,14 @@
 import { OneToMany, Entity, ObjectIdColumn, ObjectID, Column } from "typeorm"
 import { Booking } from "../../booking/entities/booking.entity"
 import { Event } from '../../event/entities/event.entity'
-import {Exclude} from 'class-transformer'
+import { Exclude } from 'class-transformer'
 
+import { Type } from 'class-transformer'
 @Entity()
 export class User {
 
     @ObjectIdColumn()
-    @Exclude()
+    @Type(() => String)
     id: ObjectID
 
     @Column()
@@ -26,13 +27,7 @@ export class User {
     @Column()
     imageUrl: string
 
-    @OneToMany(() => Booking, booking => booking.user, {
-        cascade: true
-    })
-    bookings: Booking[]
-
-    @OneToMany(() => Event, event => event.user, {
-        cascade: true
-    })
+    @Column()
+    @Type(() => Event)
     events: Event[]
 }

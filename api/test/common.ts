@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { User } from '../src/user/entities/user.entity';
 
-export function getAuthToken(app, { email, password }: User) {
+export function getAuthToken(app, { email, password }: { email: string, password: string }) {
   const validCredentials = {
     email,
     password,

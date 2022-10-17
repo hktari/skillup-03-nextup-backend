@@ -1,6 +1,7 @@
 import { ClassSerializerInterceptor, ConsoleLogger, Controller, DefaultValuePipe, Get, Inject, NotFoundException, Param, ParseIntPipe, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { LoggedInUser } from '../common/decorators/user.decorator';
+import { EventService } from '../event/event.service';
 import { ILoggerServiceToken } from '../logger/winston-logger.service';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
@@ -10,6 +11,7 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(
     private readonly userService: UserService,
+    private readonly eventService: EventService,
     @Inject(ILoggerServiceToken) private readonly logger: ConsoleLogger) {
     logger.setContext('UserController')
   }
@@ -30,9 +32,9 @@ export class UserController {
     @Query('startIdx', new DefaultValuePipe(0)) startIdx: number,
     @Query('pageSize', new DefaultValuePipe(10)) pageSize: number,
     @LoggedInUser() user: User) {
-      this.logger.debug(JSON.stringify(user))
+    this.logger.debug(JSON.stringify(user))
 
-      return user.bookings      
+    return this.eventService.findForUser(user.email, startIdx, pageSize)
   }
 
 

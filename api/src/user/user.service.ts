@@ -34,10 +34,6 @@ export class UserService {
     async findByEmail(email: string) {
         return this.userRepository.findOne({
             where: { email },
-            relations: {
-                bookings: true,
-                events: true
-            }
         })
     }
 

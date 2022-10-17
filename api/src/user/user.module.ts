@@ -7,9 +7,10 @@ import { AuthModule } from '../auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { User } from './entities/user.entity';
 import { ProfileController } from './profile.controller';
+import { EventModule } from '../event/event.module';
 
 @Module({
-  imports: [DatabaseModule, forwardRef(() => AuthModule)],
+  imports: [DatabaseModule, forwardRef(() => AuthModule), EventModule],
   controllers: [UserController, ProfileController],
   providers: [UserService],
   exports: [UserService]

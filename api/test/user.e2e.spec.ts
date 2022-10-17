@@ -31,7 +31,7 @@ describe('User (e2e)', () => {
         existingUser = JSON.parse(JSON.stringify(existingUser)) // convert to regular object instead of 'User' class
 
         // login
-        accessToken = await getAuthToken(app, existingUser)
+        accessToken = await getAuthToken(app, 'existing.user@example.com', 'secret')
     });
 
     afterAll(() => {
@@ -42,11 +42,16 @@ describe('User (e2e)', () => {
 
     describe('GET /user/{id}', () => {
         it('should return 200 and existing user', async () => {
+            const result = {
+                ...existingUser
+            }
+            delete result.password
+
             const response = await request(app.getHttpServer())
                 .get('/user/' + existingUser.email)
 
             expect(response.statusCode).toBe(200)
-            expect(response.body).toMatchObject(existingUser)
+            expect(response.body).toMatchObject(result)
         })
     });
 

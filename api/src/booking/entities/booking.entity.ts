@@ -1,16 +1,20 @@
-import { ManyToOne, Entity, ObjectIdColumn, ObjectID, Column } from "typeorm"
+import {JoinColumn, ManyToOne, Entity, ObjectIdColumn, ObjectID, Column } from "typeorm"
 import { User } from "../../user/entities/user.entity"
 import { Event } from '../../event/entities/event.entity'
 
+import { Type } from 'class-transformer'
 @Entity()
 export class Booking {
 
     @ObjectIdColumn()
+    @Type(() => String)
     id: ObjectID
 
-    @ManyToOne(() => User, user => user.bookings)
-    user: User
+    @ObjectIdColumn()
+    @Type(() => String)
+    userId: ObjectID
 
-    @ManyToOne(() => Event, event => event.bookings)
-    event: Event
+    @ObjectIdColumn()
+    @Type(() => String)
+    eventId: ObjectID
 }

@@ -4,12 +4,20 @@ import { CryptoService } from './crypto.service';
 import { JwtService } from '@nestjs/jwt';
 import { SignupDto } from './dto/signup.dto';
 import { ILoggerServiceToken } from '../logger/winston-logger.service';
+import { EmailService } from '../common/services/EmailService';
+import { ConfigService } from '@nestjs/config'
+class PasswordResetJWT {
+    email: string
+    expiresAt: Date
+    lastPasswordChangedDate: Date
+}
 
 @Injectable()
 export class AuthService {
     constructor(@Inject(ILoggerServiceToken) private logger: ConsoleLogger,
+        private readonly configService: ConfigService,
         private readonly usersService: UserService, private readonly cryptoService: CryptoService,
-        private readonly jwtService: JwtService) {
+        private readonly jwtService: JwtService, private readonly emailService: EmailService) {
 
     }
 
@@ -42,5 +50,22 @@ export class AuthService {
             imageUrl: 'TODO'
         }
         return await this.usersService.create(signup.firstName, signup.lastName, signup.email, signup.password, signup.imageUrl)
+    }
+
+
+    async initiatePasswordReset(email: string) {
+        const expiresDurationMs = 1000 * 60 * 10
+
+        const pwdResetPayload : PasswordResetJWT = {
+            email,
+            expiresAt: new Date(Date.now() + expiresDurationMs),
+            lastPasswordChangedDate: null
+        }
+        const pwdResetToken = await this.jwtService.signAsync(pwdResetPayload, { secret: this.configService.getOrThrow("JWT_SECRET") })
+        return await this.emailService.sendPasswordReset(email, pwdResetToken)
+    }
+
+    validatePasswordReset(token: string) {
+        return this.jwtService.verifyAsync<PasswordResetJWT>(token, { secret: this.configService.getOrThrow("JWT_SECRET") })
     }
 }

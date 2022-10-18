@@ -9,9 +9,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config'
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
+import { CommonModule } from '../common/common.module';
 
 @Module({
-    imports: [forwardRef(() => UserModule), PassportModule,
+    imports: [forwardRef(() => UserModule), PassportModule, CommonModule,
     JwtModule.registerAsync(
         {
             useFactory: (configService: ConfigService) => {

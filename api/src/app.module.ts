@@ -11,7 +11,7 @@ import { AuthModule } from './auth/auth.module';
 
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { LoggingMiddleware } from './common/middleware/logging.middleware';
-import { EmailService } from './common/services/EmailService';
+import { EmailService } from './common/services/email.service';
 import { CommonModule } from './common/common.module';
 @Module({
   imports: [LoggerModule, ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }), EventModule, UserModule, BookingModule, DatabaseModule, AuthModule, CommonModule],

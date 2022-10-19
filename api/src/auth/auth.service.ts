@@ -4,7 +4,7 @@ import { CryptoService } from './crypto.service';
 import { JwtService } from '@nestjs/jwt';
 import { SignupDto } from './dto/signup.dto';
 import { ILoggerServiceToken } from '../logger/winston-logger.service';
-import { EmailService } from '../common/services/EmailService';
+import { EmailService } from '../common/services/email.service';
 import { ConfigService } from '@nestjs/config'
 class PasswordResetJWT {
     email: string

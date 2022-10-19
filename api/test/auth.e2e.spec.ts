@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { User } from '../src/user/entities/user.entity';
@@ -17,16 +17,31 @@ import { LoggingMiddleware } from '../src/common/middleware/logging.middleware';
 import { NextFunction } from 'express';
 import { ILoggerServiceToken } from '../src/logger/winston-logger.service';
 import { Request } from 'express'
+import { EmailService } from '../src/common/services/email.service';
 
 describe('Auth (e2e)', () => {
     let app: INestApplication;
     let existingUser: User;
     let accessToken: string;
 
+    const mockEmailService = {
+        sendPasswordReset: jest.fn()
+            .mockImplementation((email: string, token: string) => {
+                console.log('CALLED!!!')
+                return Promise.resolve(true)
+            })
+    };
+
     beforeAll(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule, ConfigModule.forRoot({ envFilePath: 'test.env', isGlobal: true })]
-        }).compile();
+        }).overrideProvider(EmailService)
+            .useFactory({
+                factory: () => {
+                    return mockEmailService;
+                }
+            })
+            .compile();
 
         app = moduleFixture.createNestApplication();
         app.use((req: Request, res: Response, next: NextFunction) => {
@@ -34,6 +49,7 @@ describe('Auth (e2e)', () => {
             logger.log(`[${req.method}]: ${req.originalUrl}`);
             next();
         })
+        app.useGlobalPipes(new ValidationPipe())
 
         await app.init();
     });
@@ -101,6 +117,36 @@ describe('Auth (e2e)', () => {
 
             expect(response.statusCode).toBe(200)
 
+        })
+    })
+
+    describe('POST /auth/password-reset', () => {
+        it('should return 400 when invalid body', async () => {
+            const response = request(app.getHttpServer())
+                .post('/auth/password-reset')
+
+            expect((await response).statusCode).toBe(400)
+        })
+
+        it("should return 200 when email doesn't exist", async () => {
+            const response = await request(app.getHttpServer())
+                .post('/auth/password-reset')
+                .send({
+                    email: 'noexist@example.com'
+                })
+
+            expect(response.statusCode).toBe(200)
+        })
+
+        it('should return 200 when email exists and call EmailService', async () => {
+            const response = await request(app.getHttpServer())
+                .post('/auth/password-reset')
+                .send({
+                    email: 'existing.user@example.com'
+                })
+
+            expect(response.statusCode).toBe(200)
+            expect(mockEmailService.sendPasswordReset).toHaveBeenCalled()
         })
     })
 });

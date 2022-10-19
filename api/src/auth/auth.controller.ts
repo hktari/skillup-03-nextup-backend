@@ -5,6 +5,7 @@ import { SignupDto } from './dto/signup.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { response, Response } from 'express'
 import { UserService } from '../user/user.service';
+import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('auth')
 export class AuthController {
@@ -28,17 +29,17 @@ export class AuthController {
     }
 
     @Post('password-reset')
-    async passwordReset(@Res() res: Response, @Body('email', new ValidationPipe()) email: string) {
+    async passwordReset(@Res() res: Response, @Body() { email }: RequestPasswordResetDto) {
         this.logger.debug('requesting password reset for email: ' + email)
 
         const user = await this.userService.findByEmail(email);
         if (!user) {
             // return success code if email is not found
             res.sendStatus(200)
+        } else {
+            await this.authService.initiatePasswordReset(email)
+            res.sendStatus(200)
         }
-
-        await this.authService.initiatePasswordReset(email)
-        res.sendStatus(200)
     }
 
     @Get('password-reset/:token')
@@ -57,7 +58,7 @@ export class AuthController {
         const jwt = await this.authService.validatePasswordReset(token)
 
         await this.userService.update(jwt.email, undefined, undefined, password, undefined)
-        
+
         res.sendStatus(200)
     }
 }

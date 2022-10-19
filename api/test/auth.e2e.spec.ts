@@ -159,14 +159,14 @@ describe('Auth (e2e)', () => {
         })
 
         it('should return 400 when token expired', async () => {
-            const expiredToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4aXN0aW5nLnVzZXJAZXhhbXBsZS5jb20iLCJleHBpcmVzQXQiOiIyMDIyLTEwLTE5VDEwOjQxOjU4LjU3OVoiLCJpYXQiOjE2NjYxNzYxMTh9.phsVMVmGAB6RgFDoHsiVoI_YeQZMIaN12HMG2HEjCLI`
+            const expiredToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4aXN0aW5nLnVzZXJAZXhhbXBsZS5jb20iLCJpYXQiOjE2NjYxNzY0MjksImV4cCI6MTY2NjE3NjQyOX0.isjmWIgHgMz6E4WEDWjtA5OhcEZrg1EQec5k1acCLL4`
             const response = await request(app.getHttpServer())
                 .get('/auth/password-reset/' + expiredToken)
 
             expect(response.statusCode).toBe(400)
         })
         it('should return 200 when valid token', async () => {
-            const validToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4aXN0aW5nLnVzZXJAZXhhbXBsZS5jb20iLCJleHBpcmVzQXQiOiIyMDIyLTEwLTE5VDExOjQwOjEwLjA1MloiLCJpYXQiOjE2NjYxNzYwMTB9.2rtHvHUBh76ZW6VGw_mJJfLF0R-BtmUSK68tsGG_RSE`
+            const validToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4aXN0aW5nLnVzZXJAZXhhbXBsZS5jb20iLCJpYXQiOjE2NjYxNzY0ODksImV4cCI6NDc5MDM3ODg4OX0.behAfgA1b_6gFbLhZXLMSLA0IOmuusACcFWDYT_VFhg`
             const response = await request(app.getHttpServer())
                 .get('/auth/password-reset/' + validToken)
 

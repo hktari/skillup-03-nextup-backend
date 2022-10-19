@@ -56,18 +56,16 @@ export class AuthService {
     async initiatePasswordReset(email: string) {
         const expiresDurationMs = 1000 * 60 * 10
 
-        const pwdResetPayload : PasswordResetJWT = {
+        const pwdResetPayload = {
             email,
-            expiresAt: new Date(Date.now() + expiresDurationMs),
-            lastPasswordChangedDate: null
         }
-        const pwdResetToken = await this.jwtService.signAsync(pwdResetPayload, { secret: this.configService.getOrThrow("JWT_SECRET") })
+        const pwdResetToken = await this.jwtService.signAsync(pwdResetPayload, { secret: this.configService.getOrThrow("JWT_SECRET"), expiresIn: '10min' })
         return await this.emailService.sendPasswordReset(email, pwdResetToken)
     }
 
     async validatePasswordReset(token: string) {
         try {
-            return await this.jwtService.verifyAsync<PasswordResetJWT>(token, { secret: this.configService.getOrThrow("JWT_SECRET") })            
+            return await this.jwtService.verifyAsync<PasswordResetJWT>(token, { secret: this.configService.getOrThrow("JWT_SECRET") })
         } catch (error) {
             throw new BadRequestException(error)
         }

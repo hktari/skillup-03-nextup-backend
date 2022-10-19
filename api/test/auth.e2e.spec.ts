@@ -149,6 +149,30 @@ describe('Auth (e2e)', () => {
             expect(mockEmailService.sendPasswordReset).toHaveBeenCalled()
         })
     })
+
+    describe('GET /auth/password-reset/:token', () => {
+        it('should return 400 when invalid token', async () => {
+            const response = await request(app.getHttpServer())
+                .get('/auth/password-reset/invalid-token')
+
+            expect(response.statusCode).toBe(400)
+        })
+
+        it('should return 400 when token expired', async () => {
+            const expiredToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4aXN0aW5nLnVzZXJAZXhhbXBsZS5jb20iLCJleHBpcmVzQXQiOiIyMDIyLTEwLTE5VDEwOjQxOjU4LjU3OVoiLCJpYXQiOjE2NjYxNzYxMTh9.phsVMVmGAB6RgFDoHsiVoI_YeQZMIaN12HMG2HEjCLI`
+            const response = await request(app.getHttpServer())
+                .get('/auth/password-reset/' + expiredToken)
+
+            expect(response.statusCode).toBe(400)
+        })
+        it('should return 200 when valid token', async () => {
+            const validToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4aXN0aW5nLnVzZXJAZXhhbXBsZS5jb20iLCJleHBpcmVzQXQiOiIyMDIyLTEwLTE5VDExOjQwOjEwLjA1MloiLCJpYXQiOjE2NjYxNzYwMTB9.2rtHvHUBh76ZW6VGw_mJJfLF0R-BtmUSK68tsGG_RSE`
+            const response = await request(app.getHttpServer())
+                .get('/auth/password-reset/' + validToken)
+
+            expect(response.statusCode).toBe(200)
+        })
+    })
 });
 
 

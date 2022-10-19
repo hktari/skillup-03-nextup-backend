@@ -65,7 +65,11 @@ export class AuthService {
         return await this.emailService.sendPasswordReset(email, pwdResetToken)
     }
 
-    validatePasswordReset(token: string) {
-        return this.jwtService.verifyAsync<PasswordResetJWT>(token, { secret: this.configService.getOrThrow("JWT_SECRET") })
+    async validatePasswordReset(token: string) {
+        try {
+            return await this.jwtService.verifyAsync<PasswordResetJWT>(token, { secret: this.configService.getOrThrow("JWT_SECRET") })            
+        } catch (error) {
+            throw new BadRequestException(error)
+        }
     }
 }

@@ -27,7 +27,6 @@ describe('Auth (e2e)', () => {
     const mockEmailService = {
         sendPasswordReset: jest.fn()
             .mockImplementation((email: string, token: string) => {
-                console.log('CALLED!!!')
                 return Promise.resolve(true)
             })
     };
@@ -173,6 +172,35 @@ describe('Auth (e2e)', () => {
             expect(response.statusCode).toBe(200)
         })
     })
+
+    describe('POST /auth/password-reset/:token', () => {
+        it('should return 400 when invalid token', async () => {
+            const response = await request(app.getHttpServer())
+                .post('/auth/password-reset/invalid-token')
+
+            expect(response.statusCode).toBe(400)
+        })
+
+        it('should return 400 when token expired', async () => {
+            const expiredToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4aXN0aW5nLnVzZXJAZXhhbXBsZS5jb20iLCJpYXQiOjE2NjYxNzY0MjksImV4cCI6MTY2NjE3NjQyOX0.isjmWIgHgMz6E4WEDWjtA5OhcEZrg1EQec5k1acCLL4`
+            const response = await request(app.getHttpServer())
+                .post('/auth/password-reset/' + expiredToken)
+
+            expect(response.statusCode).toBe(400)
+        })
+
+        it('should return 200 when valid token and body', async () => {
+            const validToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4aXN0aW5nLnVzZXJAZXhhbXBsZS5jb20iLCJpYXQiOjE2NjYxNzY0ODksImV4cCI6NDc5MDM3ODg4OX0.behAfgA1b_6gFbLhZXLMSLA0IOmuusACcFWDYT_VFhg`
+            const response = await request(app.getHttpServer())
+                .get('/auth/password-reset/' + validToken)
+                .send({
+                    password: 'new-secret'
+                })
+
+            expect(response.statusCode).toBe(200)
+        })
+    })
+
 });
 
 

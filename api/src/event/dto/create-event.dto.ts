@@ -3,6 +3,6 @@ export class CreateEventDto {
   description: string;
   location: string;
   max_users: number;
-  imageUrl: string;
+  imageBase64: string;
   datetime: Date;
 }

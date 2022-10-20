@@ -15,6 +15,7 @@ import {
   expectEventEntity,
   expectPagedCollection,
   getAuthToken,
+  setupTestApp,
 } from "./common";
 
 describe("User (e2e)", () => {
@@ -32,6 +33,9 @@ describe("User (e2e)", () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    setupTestApp(app)
+    
     await app.init();
 
     const userService = app.get(UserService);

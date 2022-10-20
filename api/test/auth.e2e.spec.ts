@@ -16,6 +16,7 @@ import {
   expectPagedCollection,
   expectUserEntity,
   getAuthToken,
+  setupTestApp,
 } from "./common";
 import { SignupDto } from "../src/auth/dto/signup.dto";
 import { LoggingMiddleware } from "../src/common/middleware/logging.middleware";
@@ -53,12 +54,8 @@ describe("Auth (e2e)", () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
-    app.use((req: Request, res: Response, next: NextFunction) => {
-      const logger = app.get(ILoggerServiceToken);
-      logger.log(`[${req.method}]: ${req.originalUrl}`);
-      next();
-    });
-    app.useGlobalPipes(new ValidationPipe());
+
+    setupTestApp(app)
 
     await app.init();
   });

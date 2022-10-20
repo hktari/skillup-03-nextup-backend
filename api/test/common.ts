@@ -1,5 +1,13 @@
+import { NestApplication } from "@nestjs/core";
+import { NextFunction, json } from "express";
 import * as request from "supertest";
+import { ILoggerServiceToken } from "../src/logger/winston-logger.service";
 import { User } from "../src/user/entities/user.entity";
+import { Request } from "express";
+import { INestApplication, ValidationPipe } from "@nestjs/common";
+
+export const urlRegex = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/
+
 
 export function getAuthToken(
   app,
@@ -13,6 +21,17 @@ export function getAuthToken(
     .post("/auth/login")
     .send(validCredentials)
     .then((res) => res.body.access_token);
+}
+
+export function setupTestApp(app: INestApplication) {
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    const logger = app.get(ILoggerServiceToken);
+    logger.log(`[${req.method}]: ${req.originalUrl}`);
+    next();
+  });
+  app.useGlobalPipes(new ValidationPipe());
+
+  app.use(json({ limit: '10mb' }));
 }
 
 /* ------------------------------- // utility ------------------------------- */

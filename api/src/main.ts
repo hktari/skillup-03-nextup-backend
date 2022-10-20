@@ -1,5 +1,7 @@
+import { ConfigService } from '@nestjs/config'
 import { ClassSerializerInterceptor, ValidationPipe } from "@nestjs/common";
 import { NestFactory, Reflector } from "@nestjs/core";
+import { json } from "express";
 import { AppModule } from "./app.module";
 import {
   ILoggerServiceToken,
@@ -14,6 +16,10 @@ async function bootstrap() {
   app.enableShutdownHooks();
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalPipes(new ValidationPipe());
+
+  const configService = app.get(ConfigService)
+  app.use(json({ limit: configService.get<string>('MAX_REQUEST_SIZE') ?? '10mb' }));
+
   await app.listen(3000);
 }
 bootstrap();

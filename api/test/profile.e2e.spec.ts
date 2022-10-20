@@ -16,6 +16,7 @@ import {
   expectPagedCollection,
   expectUserEntity,
   getAuthToken,
+  setupTestApp,
 } from "./common";
 
 describe("Profile (e2e)", () => {
@@ -33,6 +34,8 @@ describe("Profile (e2e)", () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    setupTestApp(app)
+    
     await app.init();
 
     const userService = app.get(UserService);

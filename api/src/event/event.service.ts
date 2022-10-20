@@ -5,6 +5,8 @@ import {
   NotFoundException,
   NotImplementedException,
 } from "@nestjs/common";
+import { PartialType } from "@nestjs/mapped-types";
+
 import { CreateEventDto } from "./dto/create-event.dto";
 import { UpdateEventDto } from "./dto/update-event.dto";
 import { InjectDataSource } from "@nestjs/typeorm";
@@ -16,6 +18,10 @@ import { ILoggerServiceToken } from "../logger/winston-logger.service";
 import { Booking } from "../booking/entities/booking.entity";
 import { mapToEventEntity } from "../common/mapping";
 const ObjectId = require("mongodb").ObjectId;
+
+class PartialEvent extends PartialType(Event) {
+
+}
 
 @Injectable()
 export class EventService {
@@ -35,7 +41,7 @@ export class EventService {
     this.userRepository = this.dataSource.getMongoRepository<User>(User);
   }
 
-  async create(user: User, createEventDto: CreateEventDto) {
+  async create(user: User, createEventDto: PartialEvent) {
     const event = this.eventRepository.create(createEventDto);
     if (!user.events) {
       user.events = [];
@@ -152,8 +158,7 @@ export class EventService {
 
     return mapToEventEntity(eventDocument);
   }
-
-  async update(user: User, id: string, updateEventDto: UpdateEventDto) {
+  async update(user: User, id: string, { title, description, datetime, imageUrl, location, max_users }: PartialEvent) {
     const eventIdx = user.events.findIndex(
       (ev) => ev.eventId?.toString() === id
     );
@@ -164,14 +169,14 @@ export class EventService {
     }
 
     const eventToChange = user.events[eventIdx];
-    eventToChange.title = updateEventDto.title ?? eventToChange.title;
+    eventToChange.title = title ?? eventToChange.title;
     eventToChange.description =
-      updateEventDto.description ?? eventToChange.description;
-    eventToChange.datetime = updateEventDto.datetime ?? eventToChange.datetime;
-    eventToChange.imageUrl = updateEventDto.imageUrl ?? eventToChange.imageUrl;
-    eventToChange.location = updateEventDto.location ?? eventToChange.location;
+      description ?? eventToChange.description;
+    eventToChange.datetime = datetime ?? eventToChange.datetime;
+    eventToChange.imageUrl = imageUrl ?? eventToChange.imageUrl;
+    eventToChange.location = location ?? eventToChange.location;
     eventToChange.max_users =
-      updateEventDto.max_users ?? eventToChange.max_users;
+      max_users ?? eventToChange.max_users;
 
     user = await this.userRepository.save(user);
 

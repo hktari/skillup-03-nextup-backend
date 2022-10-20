@@ -126,12 +126,12 @@ describe("Event (e2e)", () => {
       expect(response.statusCode).toBe(404);
     });
 
-    it("should return 200 when request is valid", async () => {
+    it("should return 201 when request is valid", async () => {
       const response = await request(app.getHttpServer())
         .post(`/event/${bookEvent.eventId}/book`)
         .auth(accessToken, { type: "bearer" });
 
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(201);
     });
   });
 
@@ -151,12 +151,12 @@ describe("Event (e2e)", () => {
       expect(response.statusCode).toBe(404);
     });
 
-    it("should return 201 when request is valid", async () => {
+    it("should return 200 when request is valid", async () => {
       const response = await request(app.getHttpServer())
         .delete(`/event/${bookEvent.eventId}/book`)
         .auth(accessToken, { type: "bearer" });
 
-      expect(response.statusCode).toBe(201);
+      expect(response.statusCode).toBe(200);
     });
   });
 

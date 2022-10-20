@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  nextup-api:
+    build: ./api
+    image: hktari/nextup-api
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - MONGODB_URL=${MONGODB_URL}
+      - MONGODB_DATABASE=${MONGODB_DATABASE}
+      - LOG_ROTATE=${LOG_ROTATE}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL}
+      - OSM_API_KEY=${OSM_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}

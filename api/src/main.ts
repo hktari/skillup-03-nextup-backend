@@ -20,6 +20,6 @@ async function bootstrap() {
   const configService = app.get(ConfigService)
   app.use(json({ limit: configService.get<string>('MAX_REQUEST_SIZE') ?? '10mb' }));
 
-  await app.listen(3000);
+  await app.listen(configService.get('BACKEND_PORT') ?? 3000);
 }
 bootstrap();

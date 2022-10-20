@@ -26,6 +26,8 @@ import { UpdateUserDto } from "./dto/UpdateUserDto";
 import { User } from "./entities/user.entity";
 import { UserService } from "./user.service";
 import { Response } from "express";
+import { AwsService } from "../aws/aws.service";
+import { UtilityService } from "../common/services/utility.service";
 
 @Controller("profile")
 @UseGuards(JwtAuthGuard)
@@ -34,22 +36,25 @@ export class ProfileController {
   constructor(
     private readonly userService: UserService,
     private readonly authService: AuthService,
+    private readonly awsService: AwsService,
+    private readonly utility: UtilityService,
     @Inject(ILoggerServiceToken) private readonly logger: ConsoleLogger
   ) {
     logger.setContext("ProfileController");
   }
-  // - PUT /profile
+
   @Put()
-  update(@LoggedInUser() user: User, @Body() updateUserDto: UpdateUserDto) {
+  async update(@LoggedInUser() user: User, @Body() updateUserDto: UpdateUserDto) {
     let imageUrl;
     if (updateUserDto.imageBase64) {
-      imageUrl = "TODO";
+      imageUrl = await this.awsService.uploadImage(this.utility.generateUuid(), updateUserDto.imageBase64);
     }
 
-    return this.userService.update(
+    return await this.userService.update(
       user.email,
       updateUserDto.firstName,
       updateUserDto.lastName,
+      undefined,
       imageUrl
     );
   }

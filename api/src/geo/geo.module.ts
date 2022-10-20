@@ -4,6 +4,7 @@ import { GeoService } from './geo.service';
 
 @Module({
   imports: [LoggerModule],
-  providers: [GeoService]
+  providers: [GeoService],
+  exports: [GeoService]
 })
 export class GeoModule { }

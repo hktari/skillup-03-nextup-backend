@@ -14,6 +14,7 @@ import { LoggingMiddleware } from "./common/middleware/logging.middleware";
 import { EmailService } from "./common/services/email.service";
 import { CommonModule } from "./common/common.module";
 import { GeoModule } from './geo/geo.module';
+import { LocationModule } from './location/location.module';
 @Module({
   imports: [
     LoggerModule,
@@ -24,7 +25,7 @@ import { GeoModule } from './geo/geo.module';
     DatabaseModule,
     AuthModule,
     CommonModule,
-    GeoModule,
+    LocationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

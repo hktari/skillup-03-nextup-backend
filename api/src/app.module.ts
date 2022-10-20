@@ -13,6 +13,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { LoggingMiddleware } from "./common/middleware/logging.middleware";
 import { EmailService } from "./common/services/email.service";
 import { CommonModule } from "./common/common.module";
+import { GeoModule } from './geo/geo.module';
 @Module({
   imports: [
     LoggerModule,
@@ -23,6 +24,7 @@ import { CommonModule } from "./common/common.module";
     DatabaseModule,
     AuthModule,
     CommonModule,
+    GeoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

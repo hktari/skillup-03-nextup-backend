@@ -20,13 +20,17 @@ import { LocalAuthGuard } from "./guards/local-auth.guard";
 import { response, Response } from "express";
 import { UserService } from "../user/user.service";
 import { RequestPasswordResetDto } from "./dto/request-password-reset.dto";
+import { AwsService } from "../aws/aws.service";
+import { UtilityService } from "../common/services/utility.service";
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller("auth")
 export class AuthController {
   constructor(
     @Inject(ILoggerServiceToken) private readonly logger: ConsoleLogger,
     private readonly authService: AuthService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly awsService: AwsService,
+    private readonly utility: UtilityService
   ) {
     this.logger.setContext("AuthController");
   }
@@ -39,8 +43,16 @@ export class AuthController {
   }
 
   @Post("signup")
-  signup(@Body() signupDto: SignupDto) {
-    return this.authService.signup(signupDto);
+  async signup(@Body() signupDto: SignupDto) {
+
+    let imageUrl = null
+    if (signupDto.imageBase64) {
+      imageUrl = await this.awsService.uploadImage(this.utility.generateUuid(), signupDto.imageBase64)
+    }
+    return await this.authService.signup({
+      ...signupDto,
+      imageUrl
+    });
   }
 
   @Post("password-reset")

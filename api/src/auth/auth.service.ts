@@ -51,9 +51,9 @@ export class AuthService {
     email,
     firstName,
     lastName,
-    imageBase64,
+    imageUrl,
     password,
-  }: SignupDto) {
+  }) {
     const user = await this.usersService.findByEmail(email);
     if (user) {
       throw new BadRequestException(`User with email ${email} already exists`);
@@ -63,7 +63,7 @@ export class AuthService {
       firstName,
       lastName,
       password,
-      imageUrl: "TODO",
+      imageUrl,
     };
     return await this.usersService.create(
       signup.firstName,

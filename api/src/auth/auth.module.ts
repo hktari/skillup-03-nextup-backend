@@ -10,10 +10,12 @@ import { ConfigService } from "@nestjs/config";
 import { AuthController } from "./auth.controller";
 import { JwtStrategy } from "./jwt.strategy";
 import { CommonModule } from "../common/common.module";
+import { AwsModule } from "../aws/aws.module";
 
 @Module({
   imports: [
     forwardRef(() => UserModule),
+    AwsModule,
     PassportModule,
     CommonModule,
     JwtModule.registerAsync({

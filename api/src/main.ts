@@ -7,6 +7,7 @@ import {
   ILoggerServiceToken,
   WinstonLoggerService,
 } from "./logger/winston-logger.service";
+import * as cors from 'cors'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,6 +20,7 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService)
   app.use(json({ limit: configService.get<string>('MAX_REQUEST_SIZE') ?? '10mb' }));
+  app.use(cors())
 
   await app.listen(configService.get('BACKEND_PORT') ?? 3000);
 }

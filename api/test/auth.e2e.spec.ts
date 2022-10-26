@@ -222,7 +222,7 @@ describe("Auth (e2e)", () => {
     it("should return 200 when valid token and body", async () => {
       const validToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4aXN0aW5nLnVzZXJAZXhhbXBsZS5jb20iLCJpYXQiOjE2NjYxNzY0ODksImV4cCI6NDc5MDM3ODg4OX0.behAfgA1b_6gFbLhZXLMSLA0IOmuusACcFWDYT_VFhg`;
       const response = await request(app.getHttpServer())
-        .get("/auth/password-reset/" + validToken)
+        .post("/auth/password-reset/" + validToken)
         .send({
           password: "new-secret",
         });

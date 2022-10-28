@@ -26,7 +26,7 @@ export class AuthService {
     private readonly cryptoService: CryptoService,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService
-  ) {}
+  ) { }
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
@@ -42,8 +42,10 @@ export class AuthService {
 
   login(user: any) {
     const payload = { email: user.email };
+    const expiresDurationMs = 24 * 60 * 60 * 1000;
     return {
       access_token: this.jwtService.sign(payload),
+      expiresAt: new Date(Date.now() + expiresDurationMs)
     };
   }
 

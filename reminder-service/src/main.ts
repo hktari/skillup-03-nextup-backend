@@ -1,9 +1,12 @@
-
+import logger from './logger'
 
 function main() {
-    console.log('reminder service start');
+    logger.info('reminder service start');
 
-    console.log('reminder service end');
+
+    logger.debug('debugging')
+
+    logger.info('reminder service end');
 }
 
 main();

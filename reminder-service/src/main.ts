@@ -1,11 +1,11 @@
 
 
 function main() {
-    console.log('reminder service start')
+    console.log('reminder service start');
 
-    console.log('reminder service end')
+    console.log('reminder service end');
 }
 
-main()
+main();
 
-export default main
+export default main;

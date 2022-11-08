@@ -35,7 +35,7 @@ async function main() {
             const bookingsPendingReminder = await dbService.getBookingsForEventPendingReminder(event.eventId)
             logger.debug(`queueing ${bookingsPendingReminder.documents.length} emails to be sent`)
             for (const booking of bookingsPendingReminder.documents) {
-                sendEmailPromises.push(emailService.sendEventReminder(booking.user[0].email))
+                sendEmailPromises.push(emailService.sendEventReminder(booking, event))
             }
         }
     }
@@ -44,6 +44,15 @@ async function main() {
 
     const results = await Promise.allSettled(sendEmailPromises)
 
+    logger.info('processing results...')
+    for (const result of results) {
+        if(result.status === 'fulfilled'){
+            logger.info(`ok: ${result.value.booking._id}\t${result.value.booking?.user[0]?.email}`)
+            // todo: set booking.reminderSentDatetime
+        }else{
+            logger.error('failed', result.reason.error)
+        }
+    }
     logger.info('reminder service end');
 }
 

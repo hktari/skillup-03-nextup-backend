@@ -2,7 +2,7 @@ import logger from '../logger'
 import ConfigService from './config.service';
 import axios, { AxiosInstance } from 'axios'
 
-export default class EventService {
+export default class DatabaseService {
     private httpClient: AxiosInstance
     private apiEndpoint: string
 
@@ -41,8 +41,48 @@ export default class EventService {
     }
 
     async getEvents() {
-        const findOneUrl = `${this.apiEndpoint}/action/findOne`
-        const response = await this.httpClient.post(findOneUrl, this.createPayload())
+        const getAllUrl = `${this.apiEndpoint}/action/aggregate`
+
+        const payload = {
+            "collection": "user",
+            "database": "skillupmentor-nextup03",
+            "dataSource": "skillupmentor",
+            "pipeline": [
+                {
+                    "$unwind": "$events"
+                },
+                {
+                    "$replaceRoot": {
+                        "newRoot": "$events"
+                    }
+                }
+            ]
+        }
+
+        const response = await this.httpClient.post(getAllUrl, payload)
+        return response.data
+    }
+
+    async getUserBookingsForEvent(eventId: string) {
+        const getAllUrl = `${this.apiEndpoint}/action/aggregate`
+
+        const payload = {
+            "collection": "booking",
+            "database": "skillupmentor-nextup03",
+            "dataSource": "skillupmentor",
+            "filter": {
+                "$expr": {
+                    "$eq": [
+                        {
+                            "$toString": "$eventId"
+                        },
+                        eventId
+                    ]
+                }
+            }
+        }
+
+        const response = await this.httpClient.post(getAllUrl, payload)
         return response.data
     }
 }

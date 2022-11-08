@@ -13,3 +13,15 @@ export interface BookingPendingReminder {
 export interface User {
     email: string;
 }
+
+
+  export interface Event {
+    eventId: string;
+    title: string;
+    description: string;
+    location: string;
+    max_users: number;
+    imageUrl: string;
+    datetime: Date;
+  }
+  

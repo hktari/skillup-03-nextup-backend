@@ -1,7 +1,7 @@
 import logger from '../logger'
 import ConfigService from './config.service';
 import axios, { AxiosInstance } from 'axios'
-import { BookingPendingReminder, MongoDbQuery } from './database.interface';
+import { BookingPendingReminder, Event, MongoDbQuery } from './database.interface';
 import { transformParseDateFields } from './axios.util';
 
 export default class DatabaseService {
@@ -45,7 +45,7 @@ export default class DatabaseService {
         }
     }
 
-    async getEvents() {
+    async getEvents() : Promise<MongoDbQuery<Event>> {
         const getAllUrl = `${this.apiEndpoint}/action/aggregate`
 
         const payload = {
@@ -64,7 +64,7 @@ export default class DatabaseService {
             ]
         }
 
-        const response = await this.httpClient.post(getAllUrl, payload)
+        const response = await this.httpClient.post<MongoDbQuery<Event>>(getAllUrl, payload)
         return response.data
     }
 

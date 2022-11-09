@@ -33,7 +33,7 @@ export class EmailService {
       sgMail
         .send(msg)
         .then(() => {
-          logger.debug("Email sent");
+          logger.debug("email sent to " + email);
           resolve({
             booking,
             event,

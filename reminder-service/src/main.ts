@@ -29,7 +29,7 @@ async function main() {
 
     logger.info('processing results...')
 
-    processSendReminderResults(sendReminderResults)
+    await processSendReminderResults(sendReminderResults)
 
     logger.info('reminder service end');
 }
@@ -88,8 +88,8 @@ async function processSendReminderResults(results: PromiseSettledResult<SendEven
         logger.info('marking bookings as reminder sent...')
         const updateResult = await dbService.markBookingsReminderSent(succeededBookings)
         logger.debug(`updated ${updateResult.modifiedCount} out of ${succeededBookings.length} bookings`)
-    } catch (error) {
-        logger.error('failed to mark bookings as reminder sent', error)
+    } catch (error: any) {
+        logger.error(`failed to mark bookings as reminder sent. [${error.response?.status}]: ${JSON.stringify(error.response?.data)}`)
     }
 }
 

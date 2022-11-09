@@ -25,29 +25,32 @@ async function main() {
     const eventsHappeningTomorrow = filterEventsHappeningTomorrow(getEventsQuery.documents)
     logger.info(`found ${eventsHappeningTomorrow.length} to occur tomorrow.`)
 
-    const sendEmailPromises = []
-
-    for (const event of eventsHappeningTomorrow) {
-        logger.info('pending event tomorrow')
-        // logger.debug(JSON.stringify(event))
-        
-        const bookingsPendingReminder = await dbService.getBookingsForEventPendingReminder(event.eventId)
-        logger.debug(`queueing ${bookingsPendingReminder.documents.length} emails to be sent`)
-        for (const booking of bookingsPendingReminder.documents) {
-            sendEmailPromises.push(emailService.sendEventReminder(booking, event))
-        }
-    }
-
-    logger.info('sending emails...')
-
-    const results = await Promise.allSettled(sendEmailPromises)
+    const sendReminderResults = await sendRemindersForEvents(eventsHappeningTomorrow);
 
     logger.info('processing results...')
-    processSendReminderResults(results)
+
+    processSendReminderResults(sendReminderResults)
 
     logger.info('reminder service end');
 }
 
+
+async function sendRemindersForEvents(events: Event[]) {
+    const sendEmailPromises = [];
+
+    for (const event of events) {
+        logger.info('pending event: ' + event.title);
+        // logger.debug(JSON.stringify(event))
+        const bookingsPendingReminder = await dbService.getBookingsForEventPendingReminder(event.eventId);
+        logger.debug(`queueing ${bookingsPendingReminder.documents.length} emails to be sent`);
+        for (const booking of bookingsPendingReminder.documents) {
+            sendEmailPromises.push(emailService.sendEventReminder(booking, event));
+        }
+    }
+
+    logger.info('sending emails...');
+    return await Promise.allSettled(sendEmailPromises);
+}
 
 function filterEventsHappeningTomorrow(events: Event[]) {
     const today = new Date()

@@ -5,7 +5,7 @@ import { BookingPendingReminder, Event } from './database.interface';
 
 const sgMail = require("@sendgrid/mail");
 
-interface SendEventReminderResult {
+export interface SendEventReminderResult {
   error?: any,
   booking: BookingPendingReminder,
   event: Event

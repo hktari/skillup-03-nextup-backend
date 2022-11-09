@@ -3,8 +3,6 @@ import ConfigService from './lib/config.service';
 import { EmailService, SendEventReminderResult } from './lib/email.service';
 import DatabaseService from './lib/database.service';
 import { BookingPendingReminder } from './lib/database.interface';
-import { rmSync } from 'fs';
-import { es } from 'date-fns/locale';
 
 let config: ConfigService
 let emailService: EmailService
@@ -28,7 +26,8 @@ async function processSendReminderResults(results: PromiseSettledResult<SendEven
 
     try {
         logger.info('marking bookings as reminder sent...')
-        await dbService.markBookingsReminderSent(succeededBookings)
+        const updateResult = await dbService.markBookingsReminderSent(succeededBookings)
+        logger.debug(`updated ${updateResult.modifiedCount} out of ${succeededBookings.length} bookings`)
     } catch (error) {
         logger.error('failed to mark bookings as reminder sent', error)
     }

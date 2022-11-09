@@ -2,7 +2,7 @@ import logger from './logger';
 import ConfigService from './lib/config.service';
 import { EmailService, SendEventReminderResult } from './lib/email.service';
 import DatabaseService from './lib/database.service';
-import { BookingPendingReminder, Event, MongoDbQuery } from './lib/database.interface';
+import { Event } from './lib/database.interface';
 
 let config: ConfigService;
 let emailService: EmailService;

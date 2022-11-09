@@ -3,11 +3,11 @@ export interface MongoDbQuery<TDocument> {
 }
 
 export interface BookingPendingReminder {
-    _id:     string;
+    _id: string;
     eventId: string;
-    userId:  string;
+    userId: string;
     reminderSentDatetime: Date;
-    user:    User[];
+    user: User[];
 }
 
 export interface User {
@@ -15,7 +15,7 @@ export interface User {
 }
 
 
-  export interface Event {
+export interface Event {
     eventId: string;
     title: string;
     description: string;
@@ -23,5 +23,10 @@ export interface User {
     max_users: number;
     imageUrl: string;
     datetime: Date;
+}
+
+
+export interface MongoDbUpdateResult {
+    matchedCount: number;
+    modifiedCount: number;
   }
-  

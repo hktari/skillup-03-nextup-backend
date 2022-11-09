@@ -1,7 +1,7 @@
 import logger from '../logger'
 import ConfigService from './config.service';
 import axios, { AxiosInstance } from 'axios'
-import { BookingPendingReminder, Event, MongoDbQuery } from './database.interface';
+import { BookingPendingReminder, Event, MongoDbQuery, MongoDbUpdateResult } from './database.interface';
 import { transformParseDateFields } from './axios.util';
 
 export default class DatabaseService {
@@ -45,7 +45,7 @@ export default class DatabaseService {
         }
     }
 
-    async getEvents() : Promise<MongoDbQuery<Event>> {
+    async getEvents(): Promise<MongoDbQuery<Event>> {
         const getAllUrl = `${this.apiEndpoint}/action/aggregate`
 
         const payload = {
@@ -120,6 +120,39 @@ export default class DatabaseService {
         return response.data
     }
 
+
+    async markBookingsReminderSent(bookings: BookingPendingReminder[]) : Promise<MongoDbUpdateResult>{
+        const updateManyUrl = `${this.apiEndpoint}/action/updateMany`
+        const updateManyPayload = {
+            "collection": "booking",
+            "database": "skillupmentor-nextup03",
+            "dataSource": "skillupmentor",
+            "filter":
+            {
+                "$expr": {
+                    "$or": bookings.map(book => {
+                        return {
+                            "$eq": [
+                                {
+                                    "$toString": "$_id"
+                                },
+                                book._id
+                            ]
+                        }
+                    })
+                },
+                "update": {
+                    "$set": {
+                        "reminderSentDatetime": new Date().toISOString()
+                    }
+                }
+            }
+        }
+
+        const response = await this.httpClient.post<MongoDbUpdateResult>(updateManyUrl, updateManyPayload)
+
+        return response.data
+    }
     // async getUsersByIds(userIds: string[]){
     //     const getUsersUrl = `${this.apiEndpoint}/action/aggregate`
 

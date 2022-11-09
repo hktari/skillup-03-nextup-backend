@@ -27,9 +27,10 @@ async function main() {
 
     const sendReminderResults = await sendRemindersForEvents(eventsHappeningTomorrow);
 
-    logger.info('processing results...')
-
-    await processSendReminderResults(sendReminderResults)
+    if (sendReminderResults.length > 0) {
+        logger.info('processing results...')
+        await processSendReminderResults(sendReminderResults)
+    }
 
     logger.info('reminder service end');
 }
@@ -48,7 +49,10 @@ async function sendRemindersForEvents(events: Event[]) {
         }
     }
 
-    logger.info('sending emails...');
+    if (sendEmailPromises.length > 0) {
+        logger.info('sending emails...');
+    }
+    
     return await Promise.allSettled(sendEmailPromises);
 }
 

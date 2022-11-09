@@ -8,17 +8,17 @@ export default class DatabaseService {
     private httpClient: AxiosInstance
     private apiEndpoint: string
     private mongoDatabaseName: string
-    
+
     constructor(private configService: ConfigService) {
         this.apiEndpoint = this.configService.getOrThrow('MONGODB_DATA_API') as string
         this.mongoDatabaseName = this.configService.getOrThrow('MONGODB_DATABASE') as string
         const apiKey = this.configService.getOrThrow('MONGODB_DATA_API_KEY')
-        
+
         logger.debug('event service endpoint: ' + this.apiEndpoint)
 
         logger.debug('event service api key' + apiKey)
         this.httpClient = axios.create({
-            timeout: 3000,
+            timeout: 10000,
             headers: {
                 'Content-Type': 'application/json',
                 'Access-Control-Request-Headers': '*',
@@ -124,7 +124,7 @@ export default class DatabaseService {
     }
 
 
-    async markBookingsReminderSent(bookings: BookingPendingReminder[]) : Promise<MongoDbUpdateResult>{
+    async markBookingsReminderSent(bookings: BookingPendingReminder[]): Promise<MongoDbUpdateResult> {
         const updateManyUrl = `${this.apiEndpoint}/action/updateMany`
         const updateManyPayload = {
             "collection": "booking",
@@ -143,11 +143,11 @@ export default class DatabaseService {
                             ]
                         }
                     })
-                },
-                "update": {
-                    "$set": {
-                        "reminderSentDatetime": new Date().toISOString()
-                    }
+                }
+            },
+            "update": {
+                "$set": {
+                    "reminderSentDatetime": new Date().toISOString()
                 }
             }
         }

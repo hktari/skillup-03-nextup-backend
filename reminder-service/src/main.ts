@@ -1,16 +1,47 @@
 import logger from './logger'
 import ConfigService from './lib/config.service';
-import { EmailService } from './lib/email.service';
+import { EmailService, SendEventReminderResult } from './lib/email.service';
 import DatabaseService from './lib/database.service';
+import { BookingPendingReminder } from './lib/database.interface';
+import { rmSync } from 'fs';
+import { es } from 'date-fns/locale';
+
+let config: ConfigService
+let emailService: EmailService
+let dbService: DatabaseService
+
+async function processSendReminderResults(results: PromiseSettledResult<SendEventReminderResult>[]) {
+    const failedResults = results.filter(res => res.status === 'rejected')
+        .map(res => (res as PromiseRejectedResult).reason)
+
+    for (const failed of failedResults) {
+        logger.debug(JSON.stringify(failed.booking))
+        logger.error(`failed to send event reminder`, failed.error)
+    }
+
+    const succeededBookings = results.filter(res => res.status === 'fulfilled')
+        .map(res => (res as PromiseFulfilledResult<SendEventReminderResult>).value.booking)
 
 
+    logger.debug(`${succeededBookings.length} out of ${results.length} succeeded`)
+    logger.debug(`${failedResults.length} out of ${results.length} failed`)
+
+    try {
+        logger.info('marking bookings as reminder sent...')
+        await dbService.markBookingsReminderSent(succeededBookings)
+    } catch (error) {
+        logger.error('failed to mark bookings as reminder sent', error)
+    }
+}
 
 async function main() {
     logger.info('reminder service start');
 
-    const config = new ConfigService()
-    const emailService = new EmailService(config)
-    const dbService = new DatabaseService(config)
+    // initialize dependencies
+    config = new ConfigService()
+    emailService = new EmailService(config)
+    dbService = new DatabaseService(config)
+
     // emailService.sendEventReminder('bkamnik1995@gmail.com')
     // todo:
     // 1. connect to the database and get all events which are to occur tomorrow
@@ -45,14 +76,8 @@ async function main() {
     const results = await Promise.allSettled(sendEmailPromises)
 
     logger.info('processing results...')
-    for (const result of results) {
-        if(result.status === 'fulfilled'){
-            logger.info(`ok: ${result.value.booking._id}\t${result.value.booking?.user[0]?.email}`)
-            // todo: set booking.reminderSentDatetime
-        }else{
-            logger.error('failed', result.reason.error)
-        }
-    }
+    processSendReminderResults(results)
+
     logger.info('reminder service end');
 }
 

@@ -7,10 +7,13 @@ import { transformParseDateFields } from './axios.util';
 export default class DatabaseService {
     private httpClient: AxiosInstance
     private apiEndpoint: string
-
+    private mongoDatabaseName: string
+    
     constructor(private configService: ConfigService) {
         this.apiEndpoint = this.configService.getOrThrow('MONGODB_DATA_API') as string
+        this.mongoDatabaseName = this.configService.getOrThrow('MONGODB_DATABASE') as string
         const apiKey = this.configService.getOrThrow('MONGODB_DATA_API_KEY')
+        
         logger.debug('event service endpoint: ' + this.apiEndpoint)
 
         logger.debug('event service api key' + apiKey)
@@ -39,7 +42,7 @@ export default class DatabaseService {
     private createPayload() {
         return {
             "collection": "user",
-            "database": "skillupmentor-nextup03",
+            "database": this.mongoDatabaseName,
             "dataSource": "skillupmentor",
             "projection": { "_id": 1 }
         }
@@ -50,7 +53,7 @@ export default class DatabaseService {
 
         const payload = {
             "collection": "user",
-            "database": "skillupmentor-nextup03",
+            "database": this.mongoDatabaseName,
             "dataSource": "skillupmentor",
             "pipeline": [
                 {
@@ -73,7 +76,7 @@ export default class DatabaseService {
 
         const payload = {
             "collection": "booking",
-            "database": "skillupmentor-nextup03",
+            "database": this.mongoDatabaseName,
             "dataSource": "skillupmentor",
             "pipeline": [
                 {
@@ -125,7 +128,7 @@ export default class DatabaseService {
         const updateManyUrl = `${this.apiEndpoint}/action/updateMany`
         const updateManyPayload = {
             "collection": "booking",
-            "database": "skillupmentor-nextup03",
+            "database": this.mongoDatabaseName,
             "dataSource": "skillupmentor",
             "filter":
             {
@@ -158,7 +161,7 @@ export default class DatabaseService {
 
     //     const payload = {
     //         "collection": "user",
-    //         "database": "skillupmentor-nextup03",
+    //         "database": this.mongoDatabaseName,
     //         "dataSource": "skillupmentor",
     //         "filter": {
     //             "$expr": {

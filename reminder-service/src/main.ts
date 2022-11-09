@@ -1,35 +1,35 @@
-import logger from './logger'
+import logger from './logger';
 import ConfigService from './lib/config.service';
 import { EmailService, SendEventReminderResult } from './lib/email.service';
 import DatabaseService from './lib/database.service';
 import { BookingPendingReminder, Event, MongoDbQuery } from './lib/database.interface';
 
-let config: ConfigService
-let emailService: EmailService
-let dbService: DatabaseService
+let config: ConfigService;
+let emailService: EmailService;
+let dbService: DatabaseService;
 
 async function main() {
     logger.info('reminder service start');
 
     // initialize dependencies
-    config = new ConfigService()
-    emailService = new EmailService(config)
-    dbService = new DatabaseService(config)
+    config = new ConfigService();
+    emailService = new EmailService(config);
+    dbService = new DatabaseService(config);
 
-    logger.debug('retrieving events...')
+    logger.debug('retrieving events...');
 
-    const getEventsQuery = await dbService.getEvents()
+    const getEventsQuery = await dbService.getEvents();
 
-    logger.debug(`got ${getEventsQuery.documents.length} events`)
+    logger.debug(`got ${getEventsQuery.documents.length} events`);
 
-    const eventsHappeningTomorrow = filterEventsHappeningTomorrow(getEventsQuery.documents)
-    logger.info(`found ${eventsHappeningTomorrow.length} to occur tomorrow.`)
+    const eventsHappeningTomorrow = filterEventsHappeningTomorrow(getEventsQuery.documents);
+    logger.info(`found ${eventsHappeningTomorrow.length} to occur tomorrow.`);
 
     const sendReminderResults = await sendRemindersForEvents(eventsHappeningTomorrow);
 
     if (sendReminderResults.length > 0) {
-        logger.info('processing results...')
-        await processSendReminderResults(sendReminderResults)
+        logger.info('processing results...');
+        await processSendReminderResults(sendReminderResults);
     }
 
     logger.info('reminder service end');
@@ -57,11 +57,11 @@ async function sendRemindersForEvents(events: Event[]) {
 }
 
 function filterEventsHappeningTomorrow(events: Event[]) {
-    const today = new Date()
-    const tomorrow = new Date()
-    tomorrow.setDate(today.getDate() + 2)
-    tomorrow.setUTCHours(0)
-    tomorrow.setUTCMinutes(0)
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 2);
+    tomorrow.setUTCHours(0);
+    tomorrow.setUTCMinutes(0);
 
     return events.filter(event => {
         logger.debug(`considering event: id: ${event.eventId}\ttitle:${event.title}`);
@@ -74,26 +74,26 @@ function filterEventsHappeningTomorrow(events: Event[]) {
 
 async function processSendReminderResults(results: PromiseSettledResult<SendEventReminderResult>[]) {
     const failedResults = results.filter(res => res.status === 'rejected')
-        .map(res => (res as PromiseRejectedResult).reason)
+        .map(res => (res as PromiseRejectedResult).reason);
 
     for (const failed of failedResults) {
-        logger.debug(JSON.stringify(failed.booking))
-        logger.error(`failed to send event reminder`, failed.error)
+        logger.debug(JSON.stringify(failed.booking));
+        logger.error('failed to send event reminder', failed.error);
     }
 
     const succeededBookings = results.filter(res => res.status === 'fulfilled')
-        .map(res => (res as PromiseFulfilledResult<SendEventReminderResult>).value.booking)
+        .map(res => (res as PromiseFulfilledResult<SendEventReminderResult>).value.booking);
 
 
-    logger.debug(`${succeededBookings.length} out of ${results.length} succeeded`)
-    logger.debug(`${failedResults.length} out of ${results.length} failed`)
+    logger.debug(`${succeededBookings.length} out of ${results.length} succeeded`);
+    logger.debug(`${failedResults.length} out of ${results.length} failed`);
 
     try {
-        logger.info('marking bookings as reminder sent...')
-        const updateResult = await dbService.markBookingsReminderSent(succeededBookings)
-        logger.debug(`updated ${updateResult.modifiedCount} out of ${succeededBookings.length} bookings`)
+        logger.info('marking bookings as reminder sent...');
+        const updateResult = await dbService.markBookingsReminderSent(succeededBookings);
+        logger.debug(`updated ${updateResult.modifiedCount} out of ${succeededBookings.length} bookings`);
     } catch (error: any) {
-        logger.error(`failed to mark bookings as reminder sent. [${error.response?.status}]: ${JSON.stringify(error.response?.data)}`)
+        logger.error(`failed to mark bookings as reminder sent. [${error.response?.status}]: ${JSON.stringify(error.response?.data)}`);
     }
 }
 

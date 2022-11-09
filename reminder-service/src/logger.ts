@@ -1,4 +1,4 @@
-import { createLogger, transports, format } from "winston";
+import { createLogger, transports, format } from 'winston';
 
 const fileFormat = format.combine(
   format.timestamp({
@@ -7,7 +7,7 @@ const fileFormat = format.combine(
   format.errors({ stack: true }),
   format.splat(),
   format.json()
-)
+);
 
 const logger = createLogger({
   level: 'debug',
@@ -34,4 +34,4 @@ if (process.env.NODE_ENV !== 'production') {
   }));
 }
 
-export default logger
+export default logger;
